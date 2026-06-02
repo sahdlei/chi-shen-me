@@ -3,611 +3,862 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>餐谱助手</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Chi-shen-me</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #F7F4EE;
-    --surface: #FFFFFF;
-    --surface2: #F0EDE6;
-    --border: #DDD8CE;
-    --text: #1C1A16;
-    --muted: #7A7468;
-    --accent: #B85C2A;
-    --accent-light: #F5E8DF;
-    --green: #3B6D11;
-    --green-light: #EAF3DE;
-    --radius: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans SC', sans-serif;
-    font-size: 15px;
-    line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500&display=swap');
 
-  /* Header */
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .logo {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.02em;
-  }
-  .header-actions { display: flex; gap: 8px; align-items: center; }
+:root {
+  /* Warm parchment palette — inspired by vintage recipe cards + newspaper */
+  --bg:         #F2EDE3;   /* warm linen */
+  --surface:    #FAF6EF;   /* aged paper */
+  --surface2:   #EEE7D8;   /* slightly darker parchment */
+  --border:     #D6CDB8;   /* ink-faded line */
+  --border-dark:#B8AA90;
+  --text:       #2A2318;   /* dark ink */
+  --muted:      #857A67;   /* faded ink */
+  --accent:     #8B3A1A;   /* deep rust red — like old recipe card binding */
+  --accent-light:#F0DDD4;
+  --green:      #3A5E28;
+  --green-light:#E2EDD8;
+  --wood:       #C49A6C;   /* lighter honey wood */
+  --wood-light: #DDB98A;
+  --wood-mid:   #B8834E;
+  --wood-dark:  #6B4226;
+  --card-paper: #FDF8EE;   /* recipe card background */
+  --card-line:  #E8DCC8;
+  --radius:     8px;
+  --serif: 'Playfair Display', 'Noto Serif SC', serif;
+  --sans:  'Noto Sans SC', sans-serif;
+}
 
-  /* Layout */
-  .container {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 0;
-    max-width: 1100px;
-    margin: 0 auto;
-    width: 100%;
-    padding: 24px;
-    gap: 20px;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Sidebar */
-  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+body {
+  background: var(--bg);
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,120,0.07) 28px);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.65;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-  }
-  .card-title {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 12px;
-  }
+/* ── Header ── */
+header {
+  background: var(--surface);
+  border-bottom: none;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 54px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow:
+    0 1px 0 var(--border-dark),
+    0 3px 0 var(--border-dark),
+    0 2px 0 var(--surface);
+}
 
-  /* API Key */
-  .api-input-row { display: flex; gap: 8px; }
-  .provider-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  input[type=password], input[type=text] {
-    flex: 1;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 7px 10px;
-    font-size: 13px;
-    font-family: inherit;
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  input:focus { border-color: var(--accent); }
+.logo {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.header-actions { display: flex; gap: 6px; align-items: center; }
 
-  /* Meal table */
-  .meal-grid { display: flex; flex-direction: column; gap: 6px; }
-  .meal-row {
-    display: grid;
-    grid-template-columns: 36px 1fr 1fr;
-    gap: 6px;
-    align-items: center;
-  }
-  .meal-day {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--muted);
-    text-align: center;
-  }
-  .meal-cell {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 5px 8px;
-    font-size: 12px;
-    color: var(--text);
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .meal-cell:empty::before { content: attr(data-placeholder); color: var(--muted); opacity: 0.6; font-size: 11px; }
-  .meal-cell:hover { border-color: var(--accent); background: var(--accent-light); }
-  .meal-cell.filled { color: var(--text); }
-  .meal-header {
-    display: grid;
-    grid-template-columns: 36px 1fr 1fr;
-    gap: 6px;
-    margin-bottom: 4px;
-  }
-  .meal-header span {
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-    font-weight: 500;
-  }
+/* ── Layout ── */
+.app {
+  display: grid;
+  grid-template-columns: 272px 1fr 336px;
+  gap: 16px;
+  padding: 20px 20px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
 
-  /* Shopping list */
-  .shop-list { list-style: none; }
-  .shop-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
-  .shop-item:last-child { border-bottom: none; }
-  .shop-item input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
-  .shop-item.done span { text-decoration: line-through; color: var(--muted); }
-  .shop-cat {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    margin-top: 10px;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-  }
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(80,55,20,0.06);
+}
+.card:last-child { margin-bottom: 0; }
+.card-title {
+  font-family: var(--sans);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
 
-  /* Chat area */
-  .chat-area {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    min-height: 400px;
-    max-height: 560px;
-  }
-  .msg {
-    max-width: 85%;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    line-height: 1.65;
-    white-space: pre-wrap;
-  }
-  .msg.assistant {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    align-self: flex-start;
-    border-radius: 2px 10px 10px 10px;
-  }
-  .msg.user {
-    background: var(--accent);
-    color: #fff;
-    align-self: flex-end;
-    border-radius: 10px 2px 10px 10px;
-  }
-  .msg.system-note {
-    background: var(--green-light);
-    border: 1px solid #C0DD97;
-    color: var(--green);
-    align-self: center;
-    font-size: 12px;
-    border-radius: 20px;
-    padding: 5px 14px;
-    max-width: 100%;
-    text-align: center;
-  }
-  .typing {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    align-self: flex-start;
-    border-radius: 2px 10px 10px 10px;
-    padding: 10px 14px;
-    font-size: 14px;
-    color: var(--muted);
-  }
-  .typing-dots span {
-    display: inline-block;
-    width: 5px; height: 5px;
-    background: var(--muted);
-    border-radius: 50%;
-    margin: 0 2px;
-    animation: bounce 1.2s infinite;
-  }
-  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+/* ── Buttons ── */
+.btn {
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-family: var(--sans);
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text);
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.btn:hover { background: var(--surface2); border-color: var(--border-dark); }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 500;
+}
+.btn.primary:hover { background: #722f14; }
+.btn.sm { padding: 4px 9px; font-size: 11px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.provider-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-  .chat-input-area {
-    border-top: 1px solid var(--border);
-    padding: 12px 16px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-  }
-  textarea#chat-input {
-    flex: 1;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    font-size: 14px;
-    font-family: inherit;
-    resize: none;
-    outline: none;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-    max-height: 120px;
-    transition: border-color 0.15s;
-  }
-  textarea#chat-input:focus { border-color: var(--accent); }
+/* ── Inputs ── */
+input[type=text], input[type=password], input[type=date], input[type=url] {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+input:focus { border-color: var(--accent); background: var(--surface); }
 
-  /* Buttons */
-  .btn {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 7px 14px;
-    font-size: 13px;
-    font-family: inherit;
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text);
-    transition: background 0.15s, border-color 0.15s;
-    white-space: nowrap;
-  }
-  .btn:hover { background: var(--surface2); border-color: #bbb; }
-  .btn.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    padding: 9px 18px;
-  }
-  .btn.primary:hover { background: #9e4d22; }
-  .btn.small { padding: 5px 10px; font-size: 12px; }
-  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+/* ── Status dot ── */
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #bbb; display: inline-block; margin-right: 4px; }
+.dot.ok { background: #5a9e40; } .dot.err { background: #c0392b; }
 
-  /* Inventory tags */
-  .tag-area { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-  .tag {
-    background: var(--accent-light);
-    border: 1px solid #e8c4ae;
-    color: var(--accent);
-    font-size: 12px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .tag .rm { cursor: pointer; font-size: 14px; color: var(--accent); line-height: 1; }
-  .tag-input-row { display: flex; gap: 6px; }
-  .tag-input-row input { font-size: 12px; padding: 5px 8px; }
+/* ── Inventory tags ── */
+.tag-area { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.inv-tag {
+  position: relative;
+  background: var(--accent-light);
+  border: 1px solid #d4a898;
+  color: var(--accent);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  font-family: var(--sans);
+}
+.inv-tag .rm { cursor: pointer; font-size: 13px; line-height: 1; }
+.inv-tooltip {
+  display: none; position: absolute; bottom: calc(100% + 5px); left: 50%;
+  transform: translateX(-50%); background: #2A2318; color: #FAF6EF;
+  font-size: 10.5px; padding: 6px 10px; border-radius: 4px;
+  white-space: pre; z-index: 200; line-height: 1.6; pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.inv-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:#2A2318; }
+.inv-tag:hover .inv-tooltip { display: block; }
+.inv-tooltip.warn { background: #8B1A1A; }
+.inv-tooltip.warn::after { border-top-color: #8B1A1A; }
+.inv-tooltip.caution { background: #7A4A00; }
+.inv-tooltip.caution::after { border-top-color: #7A4A00; }
+.freshness-banner {
+  background: #FDF5D8; border: 1px solid #D4B84A;
+  color: #5C4400; border-radius: 4px;
+  padding: 7px 10px; font-size: 11px; line-height: 1.65; margin-bottom: 8px;
+}
 
-  .week-label {
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    margin-bottom: 8px;
-  }
+/* ── Preferences ── */
+.pref-item {
+  display: flex; align-items: flex-start; gap: 5px;
+  background: var(--green-light); border: 1px solid #b8cfA0;
+  border-radius: 4px; padding: 5px 8px; font-size: 11px;
+  color: var(--green); margin-bottom: 4px;
+}
+.pref-item span { flex: 1; line-height: 1.5; }
+.pref-rm { cursor: pointer; background: none; border: none; color: #8aab70; font-size: 13px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.pref-rm:hover { color: var(--accent); }
 
-  .empty-chat {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--muted);
-    padding: 40px 20px;
-  }
-  .empty-chat .icon { font-size: 36px; }
-  .empty-chat p { font-size: 14px; text-align: center; max-width: 260px; line-height: 1.7; }
+/* ── Meal grid — vintage form feel ── */
+.meal-header-row {
+  display: grid; grid-template-columns: 30px 1fr 1fr 18px;
+  gap: 4px; margin-bottom: 4px;
+}
+.meal-header-row span {
+  font-size: 9px; color: var(--muted); text-align: center;
+  font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.meal-row {
+  display: grid; grid-template-columns: 30px 1fr 1fr 18px;
+  gap: 4px; align-items: center; margin-bottom: 3px;
+}
+.meal-day {
+  font-size: 10px; font-weight: 600; color: var(--muted);
+  text-align: center; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.meal-cell {
+  background: var(--bg);
+  border: none;
+  border-bottom: 1px solid var(--border-dark);
+  border-radius: 0;
+  padding: 3px 5px;
+  display: flex; align-items: center;
+}
+.meal-cell:focus-within {
+  border-bottom-color: var(--accent);
+  background: var(--accent-light);
+}
+.meal-input {
+  width: 100%; border: none; background: transparent;
+  font-size: 11.5px; font-family: var(--sans); color: var(--text); outline: none;
+}
+.meal-input::placeholder { color: var(--muted); opacity: 0.5; font-style: italic; }
+.add-recipe-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--border-dark); font-size: 14px; line-height: 1; padding: 0;
+  transition: color 0.15s;
+}
+.add-recipe-btn:hover { color: var(--accent); }
 
-  .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 12px; }
-  .quick-btn {
-    font-size: 12px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    cursor: pointer;
-    color: var(--text);
-    transition: background 0.15s;
-  }
-  .quick-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+/* Divider between days */
+.meal-row:nth-child(7n) { border-bottom: 1px solid var(--border); margin-bottom: 6px; }
 
-  .status-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #ccc; display: inline-block; margin-right: 5px;
-  }
-  .status-dot.ok { background: #4caf50; }
-  .status-dot.err { background: #e53935; }
+/* ── Shopping ── */
+.shop-cat {
+  font-size: 9px; font-weight: 600; color: var(--muted);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin: 10px 0 3px; padding-bottom: 2px;
+  border-bottom: 1px solid var(--border);
+}
+.shop-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px dashed var(--border); font-size: 12px; }
+.shop-item:last-child { border-bottom: none; }
+.shop-item input[type=checkbox] { accent-color: var(--accent); width: 12px; height: 12px; flex-shrink: 0; }
+.shop-item.done span, .shop-item.done input[type=text] { text-decoration: line-through; color: var(--muted); opacity: 0.6; }
+.shop-text { flex: 1; border: none; background: transparent; font-size: 12px; font-family: var(--sans); color: var(--text); outline: none; }
+.shop-text:focus { background: var(--accent-light); border-radius: 2px; padding: 0 2px; }
+.shop-del { cursor: pointer; background: none; border: none; color: var(--border-dark); font-size: 14px; line-height: 1; flex-shrink: 0; }
+.shop-del:hover { color: var(--accent); }
 
-  .autocomplete-wrap { position: relative; flex: 1; }
-  .autocomplete-wrap textarea { width: 100%; }
-  .ac-dropdown {
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 0; right: 0;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    z-index: 20;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  .ac-item {
-    padding: 8px 12px;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text);
-    transition: background 0.1s;
-  }
-  .ac-item:hover, .ac-item.active { background: var(--accent-light); }
-  .ac-item .ac-icon { font-size: 11px; color: var(--muted); }
-  .ac-section {
-    font-size: 10px;
-    color: var(--muted);
-    padding: 6px 12px 2px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border-top: 1px solid var(--border);
-  }
-  .ac-section:first-child { border-top: none; }
+/* ── Chat — clean editorial ── */
+.chat-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex; flex-direction: column;
+  height: 100%; min-height: 0;
+  box-shadow: 0 1px 3px rgba(80,55,20,0.06);
+}
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 200px;
+}
+.msg {
+  max-width: 86%; padding: 9px 13px;
+  font-size: 13px; line-height: 1.65; white-space: pre-wrap;
+}
+.msg.assistant {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  align-self: flex-start;
+  border-radius: 2px 8px 8px 8px;
+  color: var(--text);
+}
+.msg.user {
+  background: var(--accent);
+  color: #FAF6EF;
+  align-self: flex-end;
+  border-radius: 8px 2px 8px 8px;
+}
+.typing {
+  background: var(--surface2); border: 1px solid var(--border);
+  align-self: flex-start; border-radius: 2px 8px 8px 8px; padding: 9px 13px;
+}
+.typing-dots span {
+  display: inline-block; width: 5px; height: 5px;
+  background: var(--muted); border-radius: 50%; margin: 0 2px;
+  animation: bounce 1.2s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
 
-  /* Editable meal cells */
-  .meal-cell {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 5px 8px;
-    font-size: 12px;
-    color: var(--text);
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    cursor: text;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .meal-input-cell {
-    width: 100%;
-    border: none;
-    background: transparent;
-    font-size: 12px;
-    font-family: inherit;
-    color: var(--text);
-    outline: none;
-    padding: 0;
-  }
-  .meal-input-cell::placeholder { color: var(--muted); opacity: 0.6; }
-  .meal-cell:focus-within { border-color: var(--accent); background: var(--accent-light); }
+.quick-btns {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 8px 12px; border-top: 1px solid var(--border);
+}
+.quick-btn {
+  font-size: 10.5px; padding: 3px 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border-dark);
+  background: var(--bg); cursor: pointer;
+  color: var(--muted); transition: all 0.15s;
+  letter-spacing: 0.02em;
+}
+.quick-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
 
-  /* Inventory with date tooltip */
-  .inv-tag {
-    position: relative;
-    background: var(--accent-light);
-    border: 1px solid #e8c4ae;
-    color: var(--accent);
-    font-size: 12px;
-    padding: 3px 10px 3px 8px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: default;
-  }
-  .inv-tag .rm { cursor: pointer; font-size: 14px; line-height: 1; }
-  .inv-tooltip {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--text);
-    color: #fff;
-    font-size: 11px;
-    padding: 5px 9px;
-    border-radius: 6px;
-    white-space: nowrap;
-    z-index: 50;
-    line-height: 1.5;
-    pointer-events: none;
-  }
-  .inv-tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%; left: 50%;
-    transform: translateX(-50%);
-    border: 4px solid transparent;
-    border-top-color: var(--text);
-  }
-  .inv-tag:hover .inv-tooltip { display: block; }
-  .inv-tag.loading { opacity: 0.6; }
-  .inv-tag.loading::after { content: ' ⏳'; font-size: 10px; }
-  .shelf-source { font-size: 10px; opacity: 0.75; font-style: italic; }
-  .pref-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--green-light);
-    border: 1px solid #c0dd97;
-    border-radius: 6px;
-    padding: 5px 8px;
-    font-size: 12px;
-    color: var(--green);
-  }
-  .pref-item span { flex: 1; line-height: 1.4; }
-  .pref-rm { cursor: pointer; color: var(--green); font-size: 14px; flex-shrink: 0; background: none; border: none; font-family: inherit; line-height: 1; }
-  .pref-rm:hover { color: #c0392b; }
-  .inv-tooltip.warn { background: #c0392b; }
-  .inv-tooltip.warn::after { border-top-color: #c0392b; }
-  .inv-tooltip.caution { background: #e67e22; }
-  .inv-tooltip.caution::after { border-top-color: #e67e22; }
+.chat-input-area {
+  border-top: 1px solid var(--border);
+  padding: 10px 12px; display: flex; gap: 8px; align-items: flex-end;
+}
+textarea#chat-input {
+  flex: 1; border: 1px solid var(--border); border-radius: 4px;
+  padding: 7px 10px; font-size: 13px; font-family: var(--sans);
+  resize: none; outline: none; background: var(--bg); color: var(--text);
+  line-height: 1.5; max-height: 100px; transition: border-color 0.15s;
+}
+textarea#chat-input:focus { border-color: var(--accent); background: var(--surface); }
 
-  /* Freshness warning banner */
-  .freshness-banner {
-    background: #fdf3cd;
-    border: 1px solid #f0d060;
-    color: #7a5c00;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 12px;
-    line-height: 1.6;
-    margin-bottom: 10px;
-  }
-  .freshness-banner strong { display: block; margin-bottom: 2px; }
+.empty-chat {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px; color: var(--muted); padding: 30px 20px;
+}
+.empty-chat .icon { font-size: 28px; opacity: 0.6; }
+.empty-chat p {
+  font-size: 12px; text-align: center; max-width: 200px;
+  line-height: 1.7; color: var(--muted); font-style: italic;
+}
 
-  /* Shop item delete button */
-  .shop-del {
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 16px;
-    padding: 0 2px;
-    line-height: 1;
-    flex-shrink: 0;
-    background: none;
-    border: none;
-    font-family: inherit;
-  }
-  .shop-del:hover { color: #c0392b; }
+/* ── Autocomplete ── */
+.ac-wrap { position: relative; flex: 1; }
+.ac-wrap textarea { width: 100%; }
+.ac-dropdown {
+  display: none; position: absolute; bottom: calc(100% + 5px);
+  left: 0; right: 0; background: var(--surface);
+  border: 1px solid var(--border-dark); border-radius: 4px;
+  z-index: 300; box-shadow: 0 4px 16px rgba(80,55,20,0.12);
+  max-height: 160px; overflow-y: auto;
+}
+.ac-item { padding: 6px 11px; font-size: 12px; cursor: pointer; color: var(--text); transition: background 0.1s; }
+.ac-item:hover, .ac-item.active { background: var(--accent-light); }
+.ac-section {
+  font-size: 9px; color: var(--muted); padding: 5px 11px 2px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border-top: 1px solid var(--border);
+}
+.ac-section:first-child { border-top: none; }
 
-  @media (max-width: 700px) {
-    .container { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
-    .chat-messages { max-height: 380px; }
-  }
+/* ══════════════════════════════════════════
+   RECIPE BOX — lighter honey wood
+══════════════════════════════════════════ */
+
+.recipe-box {
+  background: linear-gradient(168deg, #C8955A 0%, #A67440 55%, #8B5E30 100%);
+  border-radius: 8px 8px 4px 4px;
+  box-shadow:
+    0 6px 24px rgba(80,40,10,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+  padding: 14px 14px 0;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Subtle wood grain */
+.recipe-box::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(94deg,
+      transparent 0px,
+      rgba(255,255,255,0.025) 1px,
+      transparent 2px,
+      transparent 22px
+    ),
+    repeating-linear-gradient(178deg,
+      transparent 0px,
+      rgba(0,0,0,0.02) 1px,
+      transparent 2px,
+      transparent 60px
+    );
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Decorative corner engraving */
+.recipe-box::after {
+  content: '✾';
+  position: absolute; bottom: 10px; right: 14px;
+  font-size: 28px; color: rgba(255,255,255,0.10);
+  pointer-events: none; line-height: 1;
+}
+
+.box-label {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.92);
+  text-align: center;
+  letter-spacing: 0.18em;
+  margin-bottom: 10px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  text-transform: uppercase;
+}
+
+/* Tab dividers — like card index tabs */
+.box-tabs {
+  display: flex; gap: 3px; margin-bottom: 8px;
+  overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+}
+.box-tabs::-webkit-scrollbar { display: none; }
+
+.box-tab {
+  background: linear-gradient(180deg, #E8C898 0%, #D4A870 100%);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 5px 5px 0 0;
+  padding: 3px 11px;
+  font-size: 10px;
+  color: var(--wood-dark);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--sans);
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.box-tab.active {
+  background: linear-gradient(180deg, #FDF8EE 0%, #F5ECDA 100%);
+  color: var(--wood-dark);
+  box-shadow: 0 -1px 0 rgba(255,255,255,0.5);
+}
+.box-tab:hover:not(.active) { background: linear-gradient(180deg, #F0D4A0 0%, #DDB870 100%); }
+
+.box-tab-add {
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.35);
+  border-radius: 5px 5px 0 0;
+  padding: 3px 9px;
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer; flex-shrink: 0; line-height: 1;
+}
+.box-tab-add:hover { border-color: rgba(255,255,255,0.75); color: rgba(255,255,255,0.9); }
+
+/* Cards scroll area */
+.cards-area {
+  flex: 1; overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.18) transparent;
+  padding-bottom: 44px;
+}
+.cards-area::-webkit-scrollbar { width: 3px; }
+.cards-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+/* Empty state */
+.box-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; min-height: 220px;
+  color: rgba(255,255,255,0.38); font-size: 12px;
+  text-align: center; line-height: 1.7; font-style: italic;
+}
+
+.box-empty-text { position: relative; z-index: 1; padding: 0 20px; }
+
+/* Recipe card — like an aged index card */
+.recipe-card {
+  background: linear-gradient(180deg, #FFFCF4 0%, #FDF6E4 100%);
+  border: 1px solid #D8C4A0;
+  border-radius: 3px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(80,40,10,0.12), 1px 1px 0 rgba(255,255,255,0.7) inset;
+}
+/* Left binding stripe */
+.recipe-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+  background: linear-gradient(180deg, var(--wood-light), var(--wood-mid));
+  border-right: 1px solid rgba(0,0,0,0.08);
+}
+/* Lined paper effect */
+.recipe-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0px, transparent 19px,
+    rgba(180,150,100,0.10) 19px, rgba(180,150,100,0.10) 20px
+  );
+  pointer-events: none;
+}
+.recipe-card:hover { transform: translateY(-2px) rotate(0.3deg); box-shadow: 0 6px 18px rgba(80,40,10,0.2); }
+.recipe-card.expanded { cursor: default; transform: none; }
+
+.rc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px 8px 16px;
+  position: relative; z-index: 1;
+}
+.rc-name {
+  font-family: var(--serif);
+  font-size: 13px; font-weight: 500; color: var(--wood-dark);
+  line-height: 1.3;
+}
+.rc-meta { font-size: 10px; color: var(--muted); margin-top: 2px; font-style: italic; }
+.rc-actions { display: flex; gap: 3px; }
+.rc-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 13px; color: var(--muted); padding: 2px 5px; border-radius: 3px;
+  transition: all 0.15s;
+}
+.rc-btn:hover { background: var(--accent-light); color: var(--accent); }
+
+.rc-body {
+  display: none;
+  padding: 0 12px 12px 16px;
+  border-top: 1px dashed #D8C4A0;
+  position: relative; z-index: 1;
+  background: transparent;
+}
+.recipe-card.expanded .rc-body { display: block; }
+
+.rc-section-title {
+  font-size: 9px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.12em; margin: 9px 0 4px;
+}
+.rc-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.rc-pill {
+  background: rgba(212,184,152,0.3);
+  border: 1px solid #D4B896;
+  border-radius: 2px;
+  padding: 1px 7px; font-size: 10.5px; color: var(--wood-dark);
+}
+.rc-pill.seasoning {
+  background: rgba(160,200,130,0.2);
+  border-color: #B0CC90; color: var(--green);
+}
+.rc-note {
+  font-size: 10.5px; color: var(--muted); margin-top: 8px;
+  line-height: 1.5; font-style: italic;
+}
+
+/* URL link in note */
+.rc-note a { color: var(--accent); text-decoration: underline; font-size: 10px; }
+
+/* Bottom import bar */
+.box-bottom {
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding: 10px 0 12px;
+  display: flex; gap: 6px;
+}
+.box-import-input {
+  flex: 1;
+  background: rgba(0,0,0,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 4px;
+  padding: 6px 9px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.9);
+  font-family: var(--sans);
+  outline: none;
+  transition: all 0.15s;
+}
+.box-import-input::placeholder { color: rgba(255,255,255,0.38); }
+.box-import-input:focus { border-color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.18); }
+.box-import-btn {
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 4px;
+  padding: 6px 11px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.92);
+  cursor: pointer; font-family: var(--sans);
+  white-space: nowrap; transition: background 0.15s;
+  letter-spacing: 0.04em;
+}
+.box-import-btn:hover { background: rgba(255,255,255,0.26); }
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(42,35,24,0.5); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 22px;
+  width: 360px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(42,35,24,0.25);
+  border: 1px solid var(--border);
+}
+.modal h3 {
+  font-family: var(--serif);
+  font-size: 16px; margin-bottom: 4px; color: var(--text);
+  letter-spacing: 0.01em;
+}
+.modal-field { margin-bottom: 10px; }
+.modal-field label {
+  font-size: 10px; color: var(--muted); display: block;
+  margin-bottom: 4px; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.modal-pills-area { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.modal-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 3px; padding: 2px 8px; font-size: 11px;
+}
+.modal-pill .rp { cursor: pointer; font-size: 12px; color: var(--muted); }
+.add-pill-row { display: flex; gap: 5px; margin-top: 5px; }
+.add-pill-row input { flex: 1; }
+
+/* ── Import loading ── */
+.import-loading { text-align: center; padding: 16px; color: rgba(255,255,255,0.55); font-size: 12px; }
+.import-spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: rgba(255,255,255,0.8);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  margin-right: 6px; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Misc ── */
+.shelf-source { font-size: 10px; opacity: 0.75; font-style: italic; }
+.inv-tag.loading { opacity: 0.6; }
+.inv-tag.loading::after { content: ' ⏳'; font-size: 10px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">🍜 餐谱助手</div>
+  <div class="logo">Chi&#8209;shen&#8209;me</div>
   <div class="header-actions">
-    <span id="status-indicator"><span class="status-dot" id="dot"></span><span id="status-text" style="font-size:12px;color:var(--muted)">未连接</span></span>
-    <button class="btn small" onclick="exportSVG()">导出餐表</button>
-    <button class="btn small" onclick="exportShoppingSVG()">导出采购清单</button>
-    <button class="btn small" onclick="resetWeek()">新的一周</button>
+    <span><span class="dot" id="dot"></span><span id="status-text" style="font-size:11px;color:var(--muted)">未连接</span></span>
+    <button class="btn sm" onclick="exportMealSVG()" data-i18n="exportMeal">导出餐表</button>
+    <button class="btn sm" onclick="exportShopSVG()" data-i18n="exportShop">导出采购</button>
+    <button class="btn sm" onclick="resetWeek()" data-i18n="newWeek">新的一周</button>
+    <button class="btn sm" id="lang-btn" onclick="toggleLang()" style="font-weight:500;letter-spacing:0.03em">EN</button>
   </div>
 </header>
 
-<div class="container">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <!-- API Key -->
-    <div class="card">
-      <div class="card-title">API 设置</div>
-      <div style="display:flex;gap:6px;margin-bottom:8px">
-        <button class="btn small provider-btn active" id="btn-anthropic" onclick="setProvider('anthropic')">Anthropic</button>
-        <button class="btn small provider-btn" id="btn-deepseek" onclick="setProvider('deepseek')">DeepSeek</button>
-      </div>
-      <div class="api-input-row">
-        <input type="password" id="api-key" placeholder="sk-ant-..." oninput="saveKey()">
-        <button class="btn small" onclick="toggleKey()">显示</button>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px">存在本地，不会上传</div>
+<div class="app">
 
-    </div>
-
-    <!-- Inventory -->
-    <div class="card">
-      <div class="card-title">家里现有食材</div>
-      <div id="freshness-banner" style="display:none"></div>
-      <div class="tag-area" id="inventory-tags"></div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <input type="text" id="inv-input" placeholder="食材名称..." style="width:100%" onkeydown="if(event.key==='Enter')document.getElementById('inv-date').focus()">
-        <div style="display:flex;gap:6px">
-          <input type="date" id="inv-date" style="flex:1;font-size:12px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-family:inherit" onkeydown="if(event.key==='Enter')addInventory()">
-          <button class="btn small" onclick="addInventory()">添加</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Preferences -->
-    <div class="card" id="prefs-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div class="card-title" style="margin-bottom:0">个人偏好</div>
-        <span style="font-size:11px;color:var(--muted)">以 * 开头输入保存</span>
-      </div>
-      <div id="prefs-list" style="display:flex;flex-direction:column;gap:4px"></div>
-    </div>
+  <!-- ── Left col: Meal planner + Shopping + Settings ── -->
+  <div class="left-col" style="display:flex;flex-direction:column;gap:12px">
 
     <!-- Meal table -->
     <div class="card">
-      <div class="card-title">本周餐谱</div>
-      <div class="week-label" id="week-label"></div>
-      <div class="meal-header">
-        <span></span><span>午餐</span><span>晚餐</span>
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span data-i18n="weeklyMenu">本周餐谱</span>
+        <span id="week-label" style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none"></span>
       </div>
-      <div class="meal-grid" id="meal-grid"></div>
-      <button class="btn small" style="margin-top:10px;width:100%" onclick="askForShopping()">生成采购清单 →</button>
+      <div class="meal-header-row">
+        <span></span><span data-i18n="lunch">午餐</span><span data-i18n="dinner">晚餐</span><span></span>
+      </div>
+      <div id="meal-grid"></div>
+      <button class="btn sm" style="margin-top:8px;width:100%" onclick="askForShopping()" data-i18n="genShoppingList">生成采购清单 →</button>
     </div>
 
     <!-- Shopping list -->
     <div class="card" id="shop-card" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="card-title" style="margin-bottom:0">采购清单</div>
-        <button class="btn small" onclick="clearChecked()">清除已购</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="card-title" style="margin-bottom:0" data-i18n="shoppingList">采购清单</div>
+        <button class="btn sm" onclick="clearChecked()" data-i18n="clearBought">清除已购</button>
       </div>
       <div id="shop-list-container"></div>
-      <div style="display:flex;gap:6px;margin-top:10px">
-        <input type="text" id="shop-new-name" placeholder="添加食材..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addShopItem()">
-        <input type="text" id="shop-new-cat" placeholder="分类" style="width:60px;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addShopItem()">
-        <button class="btn small" onclick="addShopItem()">添加</button>
+      <div style="display:flex;gap:5px;margin-top:8px">
+        <input type="text" id="shop-new-name" data-i18n-placeholder="addIngredient" placeholder="添加食材..." style="flex:1" onkeydown="if(event.key==='Enter')addShopItem()">
+        <input type="text" id="shop-new-cat" data-i18n-placeholder="category" placeholder="分类" style="width:55px" onkeydown="if(event.key==='Enter')addShopItem()">
+        <button class="btn sm" onclick="addShopItem()" data-i18n="add">添加</button>
+      </div>
+    </div>
+
+    <!-- API -->
+    <div class="card">
+      <div class="card-title" data-i18n="apiSettings">API 设置</div>
+      <div style="display:flex;gap:5px;margin-bottom:8px">
+        <button class="btn sm provider-btn active" id="btn-anthropic" onclick="setProvider('anthropic')">Anthropic</button>
+        <button class="btn sm provider-btn" id="btn-deepseek" onclick="setProvider('deepseek')">DeepSeek</button>
+      </div>
+      <div style="display:flex;gap:5px">
+        <input type="password" id="api-key" placeholder="sk-ant-..." oninput="saveKey()" style="flex:1">
+        <button class="btn sm" onclick="toggleKey()" data-i18n="show">显示</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:5px" data-i18n="keyLocal">Key 存在本地，不会上传</div>
+    </div>
+
+    <!-- Inventory -->
+    <div class="card">
+      <div class="card-title" data-i18n="pantry">家里现有食材</div>
+      <div id="freshness-banner" style="display:none"></div>
+      <div class="tag-area" id="inventory-tags"></div>
+      <input type="text" id="inv-input" data-i18n-placeholder="ingredientName" placeholder="食材名称..." style="margin-bottom:5px" onkeydown="if(event.key==='Enter')document.getElementById('inv-date').focus()">
+      <div style="display:flex;gap:5px">
+        <input type="date" id="inv-date" style="flex:1" onkeydown="if(event.key==='Enter')addInventory()">
+        <button class="btn sm" onclick="addInventory()" data-i18n="add">添加</button>
+      </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span data-i18n="preferences">个人偏好</span>
+        <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none" data-i18n="prefHint">以 * 开头保存</span>
+      </div>
+      <div id="prefs-list"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Middle col: Recipe box ── -->
+  <div class="recipe-col" style="display:flex;flex-direction:column;height:calc(100vh - 84px);position:sticky;top:68px">
+    <div style="flex:1;perspective:1000px;display:flex;flex-direction:column;min-height:0">
+      <div class="recipe-box">
+        <div class="box-label">✦ Recipes ✦</div>
+        <div class="box-tabs" id="box-tabs">
+          <div class="box-tab active" data-cat="全部" onclick="selectTab(this)" data-i18n-text="all">全部</div>
+          <div class="box-tab-add" onclick="addTab()" title="新建分类">+</div>
+        </div>
+        <div class="cards-area" id="cards-area">
+          <div class="box-empty" id="box-empty">
+            <div class="box-empty-text" id="box-empty-text">还没有食谱，从餐谱或链接导入吧</div>
+          </div>
+        </div>
+        <div class="box-bottom">
+          <input class="box-import-input" id="import-url" type="url" data-i18n-placeholder="importPlaceholder" placeholder="粘贴食谱链接，AI 自动导入...">
+          <button class="box-import-btn" onclick="importFromUrl()" data-i18n="import">导入</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Chat -->
-  <div class="chat-area">
-    <div class="chat-messages" id="chat-messages">
-      <div class="empty-chat" id="empty-state">
-        <div class="icon">🥢</div>
-        <p>输入 API Key 后开始对话，我会帮你规划本周餐谱并整理采购清单</p>
+  <!-- ── Right col: Chat ── -->
+  <div class="right-col" style="display:flex;flex-direction:column;height:calc(100vh - 84px);position:sticky;top:68px;min-height:0">
+    <div class="chat-wrap" style="flex:1;min-height:0">
+      <div class="chat-messages" id="chat-messages">
+        <div class="empty-chat" id="empty-state">
+          <div class="icon">🥢</div>
+          <p data-i18n="chatHint">输入 API Key 后开始对话，帮你规划本周餐谱</p>
+        </div>
+      </div>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="quickSend(T('startPlanMsg'))" data-i18n="startPlan">开始规划 →</button>
+        <button class="quick-btn" onclick="quickSend(T('suggestMsg'))" data-i18n="suggest">推荐菜品</button>
+        <button class="quick-btn" onclick="quickSend(T('shoppingMsg'))" data-i18n="shopping">采购清单</button>
+        <button class="quick-btn" onclick="quickSend(T('nutritionMsg'))" data-i18n="nutrition">营养分析</button>
+      </div>
+      <div class="chat-input-area">
+        <div class="ac-wrap">
+          <div class="ac-dropdown" id="ac-dropdown"></div>
+          <textarea id="chat-input" rows="1" data-i18n-placeholder="chatPlaceholder" placeholder="和助手说话..." onkeydown="handleKey(event)" oninput="autoResize(this);onChatInput(this)" onblur="setTimeout(hideAC,150)"></textarea>
+        </div>
+        <button class="btn primary" id="send-btn" onclick="sendMessage()" style="padding:8px 14px" data-i18n="send">发送</button>
       </div>
     </div>
-    <div class="quick-btns" id="quick-btns">
-      <button class="quick-btn" onclick="quickSend('帮我开始规划本周餐谱')">开始规划本周 →</button>
-      <button class="quick-btn" onclick="quickSend('根据我家现有食材推荐几道菜')">推荐菜品</button>
-      <button class="quick-btn" onclick="quickSend('帮我生成采购清单')">生成采购清单</button>
-      <button class="quick-btn" onclick="quickSend('这周吃得营养均衡吗？')">营养分析</button>
+  </div>
+
+</div>
+
+<!-- Add/Edit Recipe Modal -->
+<div class="modal-overlay" id="recipe-modal">
+  <div class="modal">
+    <h3 id="modal-title" data-i18n="addRecipeTitle">添加食谱</h3>
+    <div class="modal-field">
+      <label data-i18n="recipeName">菜名</label>
+      <input type="text" id="r-name" data-i18n-placeholder="recipeName" placeholder="如：麻婆豆腐">
     </div>
-    <div class="chat-input-area">
-      <div class="autocomplete-wrap">
-        <div class="ac-dropdown" id="ac-dropdown" style="display:none"></div>
-        <textarea id="chat-input" rows="1" placeholder="和助手说话..." onkeydown="handleKey(event)" oninput="autoResize(this);onChatInput(this)" onblur="setTimeout(hideAC,150)"></textarea>
+    <div class="modal-field">
+      <label data-i18n="recipeCategory">分类</label>
+      <input type="text" id="r-cat" placeholder="e.g. 中餐">
+    </div>
+    <div class="modal-field">
+      <label data-i18n="recipeServes">适合人数</label>
+      <input type="text" id="r-serves" placeholder="e.g. 2">
+    </div>
+    <div class="modal-field">
+      <label data-i18n="recipeIngredients">食材</label>
+      <div class="modal-pills-area" id="r-ingredients-pills"></div>
+      <div class="add-pill-row">
+        <input type="text" id="r-ing-input" data-i18n-placeholder="addIngShort" placeholder="添加食材..." onkeydown="if(event.key==='Enter'){addPill('ing');event.preventDefault()}">
+        <button class="btn sm" onclick="addPill('ing')">+</button>
       </div>
-      <button class="btn primary" id="send-btn" onclick="sendMessage()">发送</button>
+    </div>
+    <div class="modal-field">
+      <label data-i18n="recipeSeasonings">调料</label>
+      <div class="modal-pills-area" id="r-seasonings-pills"></div>
+      <div class="add-pill-row">
+        <input type="text" id="r-sea-input" data-i18n-placeholder="addSeaShort" placeholder="添加调料..." onkeydown="if(event.key==='Enter'){addPill('sea');event.preventDefault()}">
+        <button class="btn sm" onclick="addPill('sea')">+</button>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label data-i18n="recipeNote">备注</label>
+      <input type="text" id="r-note" placeholder="tips / link...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()" data-i18n="cancel">取消</button>
+      <button class="btn primary" onclick="saveRecipe()" data-i18n="save">保存</button>
     </div>
   </div>
 </div>
 
+<!-- Export Modal -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal" style="width:320px">
+    <h3 id="export-modal-title" style="margin-bottom:6px">导出</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px" id="export-modal-desc">选择语言，内容将复制到剪贴板</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn" style="justify-content:flex-start;text-align:left;padding:10px 14px" onclick="doExport('zh')">
+        🇨🇳 <strong style="margin-left:6px">中文</strong>
+        <span style="font-size:11px;color:var(--muted);margin-left:6px">直接复制</span>
+      </button>
+      <button class="btn" style="justify-content:flex-start;text-align:left;padding:10px 14px" onclick="doExport('en')" id="export-en-btn">
+        🇬🇧 <strong style="margin-left:6px">English</strong>
+        <span style="font-size:11px;color:var(--muted);margin-left:6px" id="export-en-hint">AI 翻译后复制</span>
+      </button>
+    </div>
+    <div id="export-loading" style="display:none;text-align:center;padding:12px;font-size:13px;color:var(--muted)">
+      <span style="display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px"></span>
+      翻译中...
+    </div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn" onclick="document.getElementById('export-modal').classList.remove('open')">取消</button>
+    </div>
+  </div>
+</div>
+
+
 <script>
-const DAYS = ['周一','周二','周三','周四','周五','周六','周日'];
+const DAYS_ZH = ['周一','周二','周三','周四','周五','周六','周日'];
+const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAYS_KEY = ['周一','周二','周三','周四','周五','周六','周日']; // always use ZH as data key
+function getDays() { return lang === 'en' ? DAYS_EN : DAYS_ZH; }
+
 const SYSTEM_PROMPT = `你是一个贴心的中文餐谱规划助手。用户在英国生活，平时有 meal deal 便餐选项，喜欢中餐，偶尔吃西餐。
 
 你的职责：
@@ -622,53 +873,190 @@ const SYSTEM_PROMPT = `你是一个贴心的中文餐谱规划助手。用户在
    [SHOP:分类:食材名]
 7. 回答简洁自然，像朋友聊天一样，不要太正式`;
 
-let messages = [];
-let meals = {};
-let inventory = [];
-let shopping = [];
-let preferences = []; // permanent user preferences, never cleared
+// ── State ──
+let messages = [], meals = {}, inventory = [], shopping = [], preferences = [];
+let recipes = [], currentTab = '全部';
+let editingRecipeId = null;
+let modalIngredients = [], modalSeasonings = [];
 
-function getWeekDates() {
-  const today = new Date();
-  const dow = today.getDay();
-  const offset = dow === 0 ? -6 : 1 - dow;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + offset);
-  return Array.from({length:7}, (_,i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return d;
+// ── Persistence ──
+function save() {
+  localStorage.setItem('csm', JSON.stringify({meals, inventory, messages, shopping}));
+  localStorage.setItem('csm_prefs', JSON.stringify(preferences));
+  localStorage.setItem('csm_recipes', JSON.stringify(recipes));
+}
+
+// ══════════════════════════════════════════
+//  i18n — bilingual support
+// ══════════════════════════════════════════
+let lang = localStorage.getItem('csm_lang') || 'zh';
+
+const I18N = {
+  zh: {
+    weeklyMenu: '本周餐谱', lunch: '午餐', dinner: '晚餐',
+    genShoppingList: '生成采购清单 →', shoppingList: '采购清单',
+    clearBought: '清除已购', addIngredient: '添加食材...', category: '分类',
+    add: '添加', apiSettings: 'API 设置', show: '显示', keyLocal: 'Key 存在本地，不会上传',
+    pantry: '家里现有食材', ingredientName: '食材名称...',
+    preferences: '个人偏好', prefHint: '以 * 开头保存',
+    noRecipes: '还没有食谱，从餐谱或链接导入吧',
+    importPlaceholder: '粘贴食谱链接，AI 自动导入...',
+    import: '导入', chatHint: '输入 API Key 后开始对话，帮你规划本周餐谱',
+    startPlan: '开始规划 →', suggest: '推荐菜品', shopping: '采购清单', nutrition: '营养分析',
+    chatPlaceholder: '和助手说话...', send: '发送',
+    exportMeal: '导出餐表', exportShop: '导出采购', newWeek: '新的一周',
+    connected: '已连接', disconnected: '未连接',
+    all: '全部', addCategory: '新建分类名称',
+    addToRecipe: '加入食谱', editRecipe: '编辑', deleteRecipe: '删除',
+    recipeName: '菜名', recipeCategory: '分类', recipeServes: '适合人数',
+    recipeIngredients: '食材', recipeSeasonings: '调料', recipeNote: '备注',
+    addRecipeTitle: '添加食谱', editRecipeTitle: '编辑食谱',
+    cancel: '取消', save: '保存',
+    addIngShort: '添加食材...', addSeaShort: '添加调料...',
+    importingUrl: '正在导入...',
+    prefSaved: '已记住',
+    prefKept: '这个偏好会一直保留，每周规划时都会考虑到。',
+    resetConfirm: '开始新的一周？餐谱、对话和采购清单将被清空，食材和偏好保留',
+    serves: '份', ingredients: '食材', seasonings: '调料',
+    freshnessTitle: '⚠️ 食材保鲜提醒',
+    mayExpired: '可能已变质', daysStored: '已存放', daysLeft: '还剩约', useAsap: '天，请尽快食用',
+    days: '天',
+    startPlanMsg: '帮我开始规划本周餐谱',
+    suggestMsg: '根据我家现有食材推荐几道菜',
+    shoppingMsg: '帮我生成采购清单',
+    nutritionMsg: '这周吃得营养均衡吗？',
+    shoppingReqMsg: '请根据当前餐谱，扣除我家现有食材，给我生成详细的采购清单',
+    noMealsAlert: '餐谱还是空的，先和助手聊聊规划吧～',
+    noShoppingAlert: '采购清单是空的，先生成清单吧',
+    noApiAlert: '请先输入 API Key',
+    retrying: '重试',
+    errorPrefix: '出错了',
+    retriedPrefix: '（已重试',
+    retriedSuffix: '次）',
+  },
+  en: {
+    weeklyMenu: 'Weekly Menu', lunch: 'Lunch', dinner: 'Dinner',
+    genShoppingList: 'Generate Shopping List →', shoppingList: 'Shopping List',
+    clearBought: 'Clear Bought', addIngredient: 'Add ingredient...', category: 'Category',
+    add: 'Add', apiSettings: 'API Settings', show: 'Show', keyLocal: 'Key stored locally, never uploaded',
+    pantry: 'Pantry', ingredientName: 'Ingredient name...',
+    preferences: 'Preferences', prefHint: 'Start with * to save',
+    noRecipes: 'No recipes yet. Import from meals or a link',
+    importPlaceholder: 'Paste recipe URL, AI will import...',
+    import: 'Import', chatHint: 'Enter API Key to start planning your weekly menu',
+    startPlan: 'Start Planning →', suggest: 'Suggest Dishes', shopping: 'Shopping List', nutrition: 'Nutrition Check',
+    chatPlaceholder: 'Chat with your assistant...', send: 'Send',
+    exportMeal: 'Export Meals', exportShop: 'Export Shopping', newWeek: 'New Week',
+    connected: 'Connected', disconnected: 'Disconnected',
+    all: 'All', addCategory: 'New category name',
+    addToRecipe: 'Save Recipe', editRecipe: 'Edit', deleteRecipe: 'Delete',
+    recipeName: 'Dish name', recipeCategory: 'Category', recipeServes: 'Serves',
+    recipeIngredients: 'Ingredients', recipeSeasonings: 'Seasonings', recipeNote: 'Notes',
+    addRecipeTitle: 'Add Recipe', editRecipeTitle: 'Edit Recipe',
+    cancel: 'Cancel', save: 'Save',
+    addIngShort: 'Add ingredient...', addSeaShort: 'Add seasoning...',
+    importingUrl: 'Importing...',
+    prefSaved: 'Remembered',
+    prefKept: 'This preference is saved permanently and will be considered every week.',
+    resetConfirm: 'Start a new week? Meals, chat and shopping list will be cleared. Pantry and preferences are kept.',
+    serves: 'servings', ingredients: 'Ingredients', seasonings: 'Seasonings',
+    freshnessTitle: '⚠️ Freshness Alert',
+    mayExpired: 'may have expired', daysStored: 'stored for', daysLeft: 'use within', useAsap: ' days',
+    days: 'days',
+    startPlanMsg: "Help me plan this week's meals",
+    suggestMsg: 'Suggest some dishes based on my pantry',
+    shoppingMsg: 'Generate a shopping list for me',
+    nutritionMsg: 'Is my meal plan this week nutritionally balanced?',
+    shoppingReqMsg: 'Based on the current meal plan, excluding what I already have, please generate a detailed shopping list',
+    noMealsAlert: 'No meals planned yet. Chat with the assistant to start planning!',
+    noShoppingAlert: 'Shopping list is empty. Generate one first!',
+    noApiAlert: 'Please enter an API Key first',
+    retrying: 'Retry',
+    errorPrefix: 'Error',
+    retriedPrefix: '(retried',
+    retriedSuffix: 'times)',
+  }
+};
+
+function T(key) { return I18N[lang][key] || I18N['zh'][key] || key; }
+
+function applyLang() {
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = T(key);
+  });
+  // Update placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = T(el.getAttribute('data-i18n-placeholder'));
+  });
+  // Update lang button
+  const btn = document.getElementById('lang-btn');
+  if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中文';
+  // Update status
+  const st = document.getElementById('status-text');
+  if (st) {
+    const isOk = document.getElementById('dot')?.classList.contains('ok');
+    st.textContent = isOk ? T('connected') : T('disconnected');
+  }
+  // Update html lang attr
+  document.documentElement.lang = lang;
+  // logo has no subtitle
+  // Re-render dynamic content
+  renderRecipeBox();
+  renderPreferences();
+  renderShopping();
+  renderMealGrid();
+  checkFreshness();
+  // Update chat placeholder and empty state
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput) chatInput.placeholder = T('chatPlaceholder');
+  const emptyP = document.querySelector('#empty-state p');
+  if (emptyP) emptyP.textContent = T('chatHint');
+  // Update meal header row
+  const mealHeaders = document.querySelectorAll('.meal-header-row span');
+  if (mealHeaders.length >= 3) {
+    mealHeaders[1].textContent = T('lunch');
+    mealHeaders[2].textContent = T('dinner');
+  }
+  // Update all-tab
+  const allTab = document.querySelector('.box-tab[data-cat="全部"]');
+  if (allTab) allTab.textContent = T('all');
+  // Update modal labels
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = T(el.getAttribute('data-i18n'));
   });
 }
 
+function toggleLang() {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('csm_lang', lang);
+  applyLang();
+}
+
+
 function init() {
-  const saved = JSON.parse(localStorage.getItem('meal_agent') || '{}');
-  meals = saved.meals || {};
-  inventory = saved.inventory || [];
-  messages = saved.messages || [];
-  shopping = saved.shopping || [];
-  preferences = JSON.parse(localStorage.getItem('meal_agent_prefs') || '[]');
+  const d = JSON.parse(localStorage.getItem('csm') || '{}');
+  meals = d.meals || {}; inventory = d.inventory || []; messages = d.messages || []; shopping = d.shopping || [];
+  preferences = JSON.parse(localStorage.getItem('csm_prefs') || '[]');
+  recipes = JSON.parse(localStorage.getItem('csm_recipes') || '[]');
+  dishHistory = JSON.parse(localStorage.getItem('csm_dish_history') || '[]');
+  shelfCache = JSON.parse(localStorage.getItem('csm_shelf_cache') || '{}');
 
-  const savedProvider = localStorage.getItem('meal_agent_provider') || 'anthropic';
-  currentProvider = savedProvider;
-  document.getElementById('btn-anthropic').classList.toggle('active', savedProvider==='anthropic');
-  document.getElementById('btn-deepseek').classList.toggle('active', savedProvider==='deepseek');
-  document.getElementById('api-key').placeholder = PROVIDERS[savedProvider].placeholder;
-  const key = localStorage.getItem('meal_agent_key_'+savedProvider) || '';
-  document.getElementById('api-key').value = key;
-  updateStatus(!!key);
+  const sp = localStorage.getItem('csm_provider') || 'anthropic';
+  currentProvider = sp;
+  document.getElementById('btn-anthropic').classList.toggle('active', sp==='anthropic');
+  document.getElementById('btn-deepseek').classList.toggle('active', sp==='deepseek');
+  document.getElementById('api-key').placeholder = PROVIDERS[sp].placeholder;
+  document.getElementById('api-key').value = localStorage.getItem('csm_key_'+sp) || '';
+  updateStatus(!!document.getElementById('api-key').value.trim());
 
-  renderInventory();
-  renderMealGrid();
-  renderWeekLabel();
-  renderMessages();
-  renderShopping();
-  renderPreferences();
-  checkFreshness();
-  // Set default date to today
   const todayStr = new Date().toISOString().split('T')[0];
   document.getElementById('inv-date').value = todayStr;
-  // Background lookup for any uncached items
+
+  renderAll();
+  checkFreshness();
+  applyLang();
   setTimeout(() => {
     inventory.forEach(item => {
       const name = typeof item === 'string' ? item : item.name;
@@ -677,90 +1065,72 @@ function init() {
   }, 1500);
 }
 
-function save() {
-  localStorage.setItem('meal_agent', JSON.stringify({meals, inventory, messages, shopping}));
-  localStorage.setItem('meal_agent_prefs', JSON.stringify(preferences));
+function renderAll() {
+  renderInventory(); renderMealGrid(); renderWeekLabel();
+  renderMessages(); renderShopping(); renderPreferences();
+  renderRecipeBox();
 }
 
-function renderPreferences() {
-  const list = document.getElementById('prefs-list');
-  if (preferences.length === 0) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--muted);font-style:italic">暂无偏好，输入 *开头的消息来添加</div>';
-    return;
-  }
-  list.innerHTML = preferences.map((p, i) =>
-    `<div class="pref-item">
-      <span>${p}</span>
-      <button class="pref-rm" onclick="removePref(${i})" title="删除">×</button>
-    </div>`
-  ).join('');
-}
-
-function removePref(i) {
-  preferences.splice(i, 1);
-  save();
-  renderPreferences();
-}
-
+// ── Provider ──
 let currentProvider = 'anthropic';
-
 const PROVIDERS = {
   anthropic: {
     placeholder: 'sk-ant-...',
-    buildPayload: (msgs, max_tokens, systemPrompt) => ({model: 'claude-sonnet-4-20250514', max_tokens, messages: msgs}),
-    extractText: (data) => data.content.map(c=>c.text||'').join(''),
+    buildPayload: (msgs, max_tokens) => ({model:'claude-sonnet-4-20250514', max_tokens, messages: msgs}),
+    extractText: (data) => data.content?.map(c=>c.text||'').join('') || '',
     isError: (data) => !!data.error,
     getError: (data) => data.error?.message || 'Unknown error',
   },
   deepseek: {
     placeholder: 'sk-...',
-    buildPayload: (msgs, max_tokens, systemPrompt) => ({
-      model: 'deepseek-chat',
-      max_tokens,
-      messages: [
-        {role: 'system', content: systemPrompt},
-        ...msgs.slice(2)
-      ]
-    }),
+    buildPayload: (msgs, max_tokens, sys) => ({model:'deepseek-chat', max_tokens, messages:[{role:'system',content:sys||'You are a helpful assistant.'}, ...msgs.slice(2)]}),
     extractText: (data) => data.choices?.[0]?.message?.content || '',
     isError: (data) => !!data.error,
     getError: (data) => data.error?.message || 'Unknown error',
   }
 };
 
-async function callAPI(providerName, key, payload) {
+async function callAPI(key, payload) {
   const res = await fetch('/api/chat', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ provider: providerName, key, payload })
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({provider: currentProvider, key, payload})
   });
   return res.json();
 }
 
 function setProvider(p) {
   currentProvider = p;
-  localStorage.setItem('meal_agent_provider', p);
+  localStorage.setItem('csm_provider', p);
   document.getElementById('btn-anthropic').classList.toggle('active', p==='anthropic');
   document.getElementById('btn-deepseek').classList.toggle('active', p==='deepseek');
   document.getElementById('api-key').placeholder = PROVIDERS[p].placeholder;
-  document.getElementById('api-key').value = localStorage.getItem('meal_agent_key_'+p) || '';
+  document.getElementById('api-key').value = localStorage.getItem('csm_key_'+p) || '';
   updateStatus(!!document.getElementById('api-key').value.trim());
 }
 
 function saveKey() {
   const k = document.getElementById('api-key').value.trim();
-  localStorage.setItem('meal_agent_key_'+currentProvider, k);
+  localStorage.setItem('csm_key_'+currentProvider, k);
   updateStatus(!!k);
 }
 
 function updateStatus(ok) {
-  document.getElementById('dot').className = 'status-dot ' + (ok ? 'ok' : 'err');
-  document.getElementById('status-text').textContent = ok ? '已连接' : '未连接';
+  document.getElementById('dot').className = 'dot ' + (ok?'ok':'err');
+  document.getElementById('status-text').textContent = ok ? T('connected') : T('disconnected');
 }
 
 function toggleKey() {
-  const inp = document.getElementById('api-key');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
+  const el = document.getElementById('api-key');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// ── Week ──
+function getWeekDates() {
+  const today = new Date(), dow = today.getDay();
+  const offset = dow === 0 ? -6 : 1 - dow;
+  const monday = new Date(today); monday.setDate(today.getDate() + offset);
+  return Array.from({length:7}, (_,i) => { const d=new Date(monday); d.setDate(monday.getDate()+i); return d; });
 }
 
 function renderWeekLabel() {
@@ -769,687 +1139,708 @@ function renderWeekLabel() {
   document.getElementById('week-label').textContent = `${fmt(dates[0])} — ${fmt(dates[6])}`;
 }
 
+// ── Meal grid ──
 function renderMealGrid() {
-  const dates = getWeekDates();
-  const today = new Date();
-  const grid = document.getElementById('meal-grid');
-  grid.innerHTML = DAYS.map((day, i) => {
+  const dates = getWeekDates(), today = new Date();
+  const displayDays = getDays();
+  document.getElementById('meal-grid').innerHTML = DAYS_KEY.map((day, i) => {
     const isPast = dates[i] < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const lunch = meals[day]?.lunch || '';
-    const dinner = meals[day]?.dinner || '';
-    return `<div class="meal-row" style="${isPast?'opacity:0.45':''}">
-      <div class="meal-day">${day}</div>
-      <div class="meal-cell">
-        <input class="meal-input-cell" placeholder="午餐" value="${lunch.replace(/"/g,'&quot;')}"
-          onchange="updateMeal('${day}','lunch',this.value)"
-          oninput="saveMealInput('${day}','lunch',this.value)">
-      </div>
-      <div class="meal-cell">
-        <input class="meal-input-cell" placeholder="晚餐" value="${dinner.replace(/"/g,'&quot;')}"
-          onchange="updateMeal('${day}','dinner',this.value)"
-          oninput="saveMealInput('${day}','dinner',this.value)">
-      </div>
+    const lunch = meals[day]?.lunch || '', dinner = meals[day]?.dinner || '';
+    return `<div class="meal-row" style="${isPast?'opacity:0.4':''}">
+      <div class="meal-day">${displayDays[i]}</div>
+      <div class="meal-cell"><input class="meal-input" placeholder="${T('lunch')}" value="${esc(lunch)}"
+        onchange="updateMeal('${day}','lunch',this.value)"
+        oninput="updateMeal('${day}','lunch',this.value)"
+        onblur="saveDishFromInput(this.value)"></div>
+      <div class="meal-cell"><input class="meal-input" placeholder="${T('dinner')}" value="${esc(dinner)}"
+        onchange="updateMeal('${day}','dinner',this.value)"
+        oninput="updateMeal('${day}','dinner',this.value)"
+        onblur="saveDishFromInput(this.value)"></div>
+      <button class="add-recipe-btn" title="${T('addToRecipe')}" onclick="openAddRecipeFromMeal('${day}')">＋</button>
     </div>`;
   }).join('');
 }
 
-function updateMeal(day, type, val) {
-  if (!meals[day]) meals[day] = {};
-  meals[day][type] = val.trim();
-  save();
-}
+function esc(s) { return (s||'').replace(/"/g,'&quot;'); }
 
-function saveMealInput(day, type, val) {
+function updateMeal(day, type, val) {
   if (!meals[day]) meals[day] = {};
   meals[day][type] = val;
   save();
 }
 
-// Built-in fallback shelf life (fridge storage, days)
-const SHELF_LIFE = {
-  '鸡蛋': 21, '牛奶': 7, '酸奶': 14, '豆腐': 4, '豆浆': 3,
-  '猪肉': 3, '牛肉': 3, '肥牛': 3, '羊肉': 3, '鸡肉': 3, '鸭肉': 3,
-  '三文鱼': 2, '虾': 2, '鱼': 2, '海鲜': 2,
-  '叶菜': 4, '菠菜': 4, '生菜': 5, '白菜': 7, '西兰花': 5,
-  '胡萝卜': 14, '土豆': 30, '洋葱': 30, '大蒜': 30, '红薯': 21,
-  '番茄': 7, '西红柿': 7, '黄瓜': 7, '茄子': 7, '辣椒': 7,
-  '苹果': 14, '香蕉': 5, '草莓': 3, '葡萄': 7,
-  '面条': 365, '大米': 365, '乌冬': 365, '面粉': 180,
-  '螺蛳粉': 180, '泡面': 365,
-};
-
-// Cache: { name -> {days, source, fetched} }
-let shelfCache = JSON.parse(localStorage.getItem('shelf_cache') || '{}');
-
-function saveShelfCache() {
-  localStorage.setItem('shelf_cache', JSON.stringify(shelfCache));
+function saveDishFromInput(val) {
+  if (val && val.trim().length >= 2) saveDishToHistory(val.trim());
 }
 
+function openAddRecipeFromMeal(day) {
+  const lunch = meals[day]?.lunch || '', dinner = meals[day]?.dinner || '';
+  const name = lunch || dinner || '';
+  openModal(null, name);
+}
+
+// ── Inventory ──
+const SHELF_LIFE = {
+  '鸡蛋':21,'牛奶':7,'酸奶':14,'豆腐':4,'豆浆':3,
+  '猪肉':3,'牛肉':3,'肥牛':3,'羊肉':3,'鸡肉':3,'鸭肉':3,
+  '三文鱼':2,'虾':2,'鱼':2,'海鲜':2,
+  '叶菜':4,'菠菜':4,'生菜':5,'白菜':7,'西兰花':5,
+  '胡萝卜':14,'土豆':30,'洋葱':30,'大蒜':30,'红薯':21,
+  '番茄':7,'西红柿':7,'黄瓜':7,'茄子':7,'辣椒':7,
+  '苹果':14,'香蕉':5,'草莓':3,'葡萄':7,
+  '面条':365,'大米':365,'乌冬':365,'面粉':180,'螺蛳粉':180,'泡面':365,
+};
+let shelfCache = {};
+
 function getShelfDays(name) {
-  // Check online cache first
   if (shelfCache[name]) return shelfCache[name].days;
-  // Fall back to built-in
-  for (const [k, v] of Object.entries(SHELF_LIFE)) {
-    if (name.includes(k)) return v;
-  }
+  for (const [k,v] of Object.entries(SHELF_LIFE)) { if (name.includes(k)) return v; }
   return null;
 }
 
-function getShelfSource(name) {
-  return shelfCache[name]?.source || null;
-}
-
-async function lookupShelfLife(name) {
-  const key = localStorage.getItem('meal_agent_key_'+currentProvider) || '';
-  if (!key) return;
-  if (shelfCache[name]) return; // already cached
-
-  // Mark as loading
-  const tags = document.getElementById('inventory-tags');
-  const tagEl = [...tags.querySelectorAll('.inv-tag')].find(el => el.dataset.name === name);
-  if (tagEl) tagEl.classList.add('loading');
-
-  const prompt = `You are a food safety expert. For the ingredient "${name}", search authoritative sources (FDA, StillTasty, USDA, NHS, or similar) and tell me:
-1. How many days can it be stored in the refrigerator (冰箱)?
-2. Which source did you use?
-
-Reply ONLY in this exact JSON format (no markdown, no extra text):
-{"days": <number>, "source": "<source name>", "note": "<one sentence in Chinese>"}
-
-If it's a dry/shelf-stable item stored at room temperature, use that instead and set "storage": "room".`;
-
-  try {
-    const msgs = currentProvider === 'anthropic'
-      ? [
-          {role:'user', content: 'You are a food safety expert. Reply only in JSON.'},
-          {role:'assistant', content: 'Understood. I will reply only in JSON format.'},
-          {role:'user', content: prompt}
-        ]
-      : [{role:'user', content: prompt}];
-
-    const payload = currentProvider === 'anthropic'
-      ? {model:'claude-sonnet-4-20250514', max_tokens:200, messages: msgs}
-      : {model:'deepseek-chat', max_tokens:200, messages:[{role:'system',content:'Reply only in JSON.'},{role:'user',content:prompt}]};
-
-    const data = await callAPI(currentProvider, key, payload);
-    const text = provider.extractText(data);
-    const clean = text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    if (parsed.days && parsed.days > 0) {
-      shelfCache[name] = {
-        days: parsed.days,
-        source: parsed.source || 'AI',
-        note: parsed.note || '',
-        fetched: new Date().toISOString()
-      };
-      saveShelfCache();
-      renderInventory();
-      checkFreshness();
-    }
-  } catch(e) {
-    // Silently ignore - CORS or network error, fallback to built-in data
-  } finally {
-    if (tagEl) tagEl.classList.remove('loading');
-  }
-}
-
 function renderInventory() {
-  const area = document.getElementById('inventory-tags');
   const today = new Date(); today.setHours(0,0,0,0);
-  area.innerHTML = inventory.map((item, i) => {
+  document.getElementById('inventory-tags').innerHTML = inventory.map((item,i) => {
     const name = typeof item === 'string' ? item : item.name;
     const date = typeof item === 'object' ? item.date : null;
-    let tooltipClass = '';
-    let tooltipText = '';
+    let ttClass='', ttText='';
     if (date) {
       const bought = new Date(date); bought.setHours(0,0,0,0);
       const daysKept = Math.floor((today - bought) / 86400000);
       const shelfDays = getShelfDays(name);
-      const boughtStr = bought.toLocaleDateString('zh-CN', {month:'numeric',day:'numeric'});
-      tooltipText = `购买：${boughtStr}　已存放 ${daysKept} 天`;
+      const boughtStr = bought.toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'});
+      ttText = `购买：${boughtStr}　已存放 ${daysKept} 天`;
       if (shelfDays) {
-        const daysLeft = shelfDays - daysKept;
-        if (daysLeft <= 0) {
-          tooltipText += `
-⚠️ 可能已变质`;
-          tooltipClass = 'warn';
-        } else if (daysLeft <= 2) {
-          tooltipText += `
-⚠️ ${daysLeft} 天内需食用`;
-          tooltipClass = 'caution';
-        } else {
-          tooltipText += `
-还能存放约 ${daysLeft} 天`;
-        }
+        const left = shelfDays - daysKept;
+        const src = shelfCache[name]?.source;
+        if (left <= 0) { ttText += `\n⚠️ 可能已变质`; ttClass='warn'; }
+        else if (left <= 2) { ttText += `\n⚠️ ${left} 天内需食用`; ttClass='caution'; }
+        else { ttText += `\n还能存放约 ${left} 天`; }
+        if (src) ttText += `\n来源：${src}`;
       }
     }
-    const dot = tooltipClass === 'warn' ? ' 🔴' : tooltipClass === 'caution' ? ' 🟡' : '';
+    const dot = ttClass==='warn'?' 🔴':ttClass==='caution'?' 🟡':'';
     return `<div class="inv-tag" data-name="${name}">
       ${name}${dot}
-      ${tooltipText ? `<div class="inv-tooltip ${tooltipClass}" style="white-space:pre">${tooltipText}</div>` : ''}
+      ${ttText?`<div class="inv-tooltip ${ttClass}" style="white-space:pre">${ttText}</div>`:''}
       <span class="rm" onclick="removeInventory(${i})">×</span>
     </div>`;
   }).join('');
 }
 
 function addInventory() {
-  const inp = document.getElementById('inv-input');
-  const dateEl = document.getElementById('inv-date');
-  const v = inp.value.trim();
+  const v = document.getElementById('inv-input').value.trim();
+  const date = document.getElementById('inv-date').value || null;
   if (!v) return;
-  const date = dateEl.value || null;
-  inventory.push({name: v, date});
-  inp.value = '';
-  dateEl.value = new Date().toISOString().split('T')[0];
-  renderInventory();
-  save();
-  // Background shelf-life lookup
+  inventory.push({name:v, date});
+  document.getElementById('inv-input').value = '';
+  document.getElementById('inv-date').value = new Date().toISOString().split('T')[0];
+  renderInventory(); save();
   lookupShelfLife(v);
 }
 
-function removeInventory(i) {
-  inventory.splice(i, 1);
-  renderInventory();
-  save();
+function removeInventory(i) { inventory.splice(i,1); renderInventory(); save(); }
+
+function checkFreshness() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const warnings = [];
+  inventory.forEach(item => {
+    const name = typeof item==='string'?item:item.name;
+    const date = typeof item==='object'?item.date:null;
+    if (!date) return;
+    const bought = new Date(date); bought.setHours(0,0,0,0);
+    const daysKept = Math.floor((today-bought)/86400000);
+    const shelfDays = getShelfDays(name);
+    if (!shelfDays) return;
+    const left = shelfDays - daysKept;
+    if (left <= 0) warnings.push(`🔴 ${name}：可能已变质（已存放 ${daysKept} 天）`);
+    else if (left <= 3) warnings.push(`🟡 ${name}：还剩约 ${left} 天，请尽快食用`);
+  });
+  const banner = document.getElementById('freshness-banner');
+  banner.style.display = warnings.length > 0 ? 'block' : 'none';
+  if (warnings.length) banner.innerHTML = `<strong style="display:block;margin-bottom:2px">⚠️ 食材提醒</strong>${warnings.join('<br>')}`;
 }
 
-function renderMessages() {
-  const container = document.getElementById('chat-messages');
-  const empty = document.getElementById('empty-state');
-  if (messages.length === 0) {
-    empty.style.display = 'flex';
+async function lookupShelfLife(name) {
+  const key = localStorage.getItem('csm_key_'+currentProvider) || '';
+  if (!key || shelfCache[name]) return;
+  const prompt = `You are a food safety expert. For the ingredient "${name}", provide fridge storage duration.
+Reply ONLY in JSON (no markdown): {"days": <number>, "source": "<FDA/StillTasty/USDA/NHS>", "note": "<one sentence in Chinese>"}
+If it is shelf-stable at room temperature, use room-temp duration instead.`;
+  try {
+    const payload = currentProvider === 'anthropic'
+      ? {model:'claude-sonnet-4-20250514', max_tokens:150, messages:[{role:'user',content:prompt}]}
+      : {model:'deepseek-chat', max_tokens:150, messages:[{role:'system',content:'Reply only in JSON.'},{role:'user',content:prompt}]};
+    const data = await callAPI(key, payload);
+    const text = PROVIDERS[currentProvider].extractText(data);
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if (parsed.days > 0) {
+      shelfCache[name] = {days:parsed.days, source:parsed.source||'AI', note:parsed.note||''};
+      localStorage.setItem('csm_shelf_cache', JSON.stringify(shelfCache));
+      renderInventory(); checkFreshness();
+    }
+  } catch(e) { /* silent */ }
+}
+
+// ── Preferences ──
+function renderPreferences() {
+  const el = document.getElementById('prefs-list');
+  if (!preferences.length) {
+    el.innerHTML = `<div style="font-size:11px;color:var(--muted);font-style:italic">${lang==='en'?'No preferences yet. Start a message with * to save.':'暂无偏好，以 * 开头输入来添加'}</div>`;
     return;
   }
-  empty.style.display = 'none';
-  const existing = container.querySelectorAll('.msg, .system-note');
-  existing.forEach(e => e.remove());
-  messages.forEach(m => {
-    if (m.role === 'system') return;
-    const div = document.createElement('div');
-    div.className = 'msg ' + (m.role === 'user' ? 'user' : 'assistant');
-    div.textContent = m.displayContent || m.content;
-    container.appendChild(div);
-  });
-  container.scrollTop = container.scrollHeight;
+  el.innerHTML = preferences.map((p,i) =>
+    `<div class="pref-item"><span>${p}</span><button class="pref-rm" onclick="removePref(${i})">×</button></div>`
+  ).join('');
 }
 
+function removePref(i) { preferences.splice(i,1); save(); renderPreferences(); }
+
+// ── Shopping ──
 function renderShopping() {
-  if (shopping.length === 0) {
-    document.getElementById('shop-card').style.display = 'none';
-    return;
-  }
-  document.getElementById('shop-card').style.display = 'block';
+  if (!shopping.length) { document.getElementById('shop-card').style.display='none'; return; }
+  document.getElementById('shop-card').style.display='block';
   const bycat = {};
-  shopping.forEach(s => {
-    if (!bycat[s.cat]) bycat[s.cat] = [];
-    bycat[s.cat].push(s);
-  });
+  shopping.forEach(s => { if (!bycat[s.cat]) bycat[s.cat]=[]; bycat[s.cat].push(s); });
   let html = '';
   Object.entries(bycat).forEach(([cat, items]) => {
     html += `<div class="shop-cat">${cat}</div>`;
-    items.forEach((s) => {
+    items.forEach(s => {
       const idx = shopping.indexOf(s);
-      html += `<div class="shop-item ${s.done?'done':''}" id="si-${idx}">
+      html += `<div class="shop-item ${s.done?'done':''}">
         <input type="checkbox" ${s.done?'checked':''} onchange="toggleShop(${idx})">
-        <input type="text" value="${s.name}" onchange="renameShop(${idx}, this.value)"
-          style="flex:1;border:none;background:transparent;font-size:13px;color:var(--text);outline:none;font-family:inherit;${s.done?'text-decoration:line-through;color:var(--muted)':''}"
-          onfocus="this.style.background='var(--accent-light)';this.style.borderRadius='4px'"
-          onblur="this.style.background='transparent'">
-        <button class="shop-del" onclick="deleteShop(${idx})" title="删除">×</button>
+        <input class="shop-text" type="text" value="${esc(s.name)}" onchange="renameShop(${idx},this.value)" style="${s.done?'text-decoration:line-through;color:var(--muted)':''}">
+        <button class="shop-del" onclick="deleteShop(${idx})">×</button>
       </div>`;
     });
   });
   document.getElementById('shop-list-container').innerHTML = html;
 }
 
-function toggleShop(i) {
-  shopping[i].done = !shopping[i].done;
-  save();
-  renderShopping();
-}
-
-function clearChecked() {
-  shopping = shopping.filter(s => !s.done);
-  save();
-  renderShopping();
-}
-
-function renameShop(i, val) {
-  if (val.trim()) shopping[i].name = val.trim();
-  save();
-}
-
-function deleteShop(i) {
-  shopping.splice(i, 1);
-  save();
-  renderShopping();
-}
-
+function toggleShop(i) { shopping[i].done=!shopping[i].done; save(); renderShopping(); }
+function renameShop(i,v) { if(v.trim()) shopping[i].name=v.trim(); save(); }
+function deleteShop(i) { shopping.splice(i,1); save(); renderShopping(); }
+function clearChecked() { shopping=shopping.filter(s=>!s.done); save(); renderShopping(); }
 function addShopItem() {
-  const nameEl = document.getElementById('shop-new-name');
-  const catEl = document.getElementById('shop-new-cat');
-  const name = nameEl.value.trim();
+  const name = document.getElementById('shop-new-name').value.trim();
+  const cat = document.getElementById('shop-new-cat').value.trim() || '其他';
   if (!name) return;
-  const cat = catEl.value.trim() || '其他';
-  shopping.push({cat, name, done: false});
-  nameEl.value = '';
-  catEl.value = '';
-  save();
-  renderShopping();
-  if (shopping.length === 1) document.getElementById('shop-card').style.display = 'block';
+  shopping.push({cat, name, done:false});
+  document.getElementById('shop-new-name').value='';
+  document.getElementById('shop-new-cat').value='';
+  document.getElementById('shop-card').style.display='block';
+  save(); renderShopping();
+}
+
+// ── Messages ──
+function renderMessages() {
+  const container = document.getElementById('chat-messages');
+  const empty = document.getElementById('empty-state');
+  if (!messages.length) { empty.style.display='flex'; return; }
+  empty.style.display='none';
+  container.querySelectorAll('.msg').forEach(e=>e.remove());
+  messages.forEach(m => {
+    if (m.role==='system') return;
+    const div = document.createElement('div');
+    div.className = 'msg '+(m.role==='user'?'user':'assistant');
+    div.textContent = m.displayContent || m.content;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
 }
 
 function parseMealTags(text) {
   const mealRe = /\[MEAL:([^:]+):([^:]+):([^\]]+)\]/g;
   let m;
-  while ((m = mealRe.exec(text)) !== null) {
-    const [, day, type, name] = m;
-    if (!meals[day]) meals[day] = {};
-    if (type.includes('午')) meals[day].lunch = name.trim();
-    else meals[day].dinner = name.trim();
+  while ((m=mealRe.exec(text))!==null) {
+    const [,day,type,name]=m;
+    if (!meals[day]) meals[day]={};
+    if (type.includes('午')) meals[day].lunch=name.trim();
+    else meals[day].dinner=name.trim();
+    saveDishToHistory(name.trim());
   }
-
   const shopRe = /\[SHOP:([^:]+):([^\]]+)\]/g;
-  const newItems = [];
-  while ((m = shopRe.exec(text)) !== null) {
-    const [, cat, name] = m;
-    const nm = name.trim();
-    if (!shopping.find(s => s.name === nm)) {
-      newItems.push({cat: cat.trim(), name: nm, done: false});
-    }
+  while ((m=shopRe.exec(text))!==null) {
+    const [,cat,name]=m;
+    const nm=name.trim();
+    if (!shopping.find(s=>s.name===nm)) shopping.push({cat:cat.trim(),name:nm,done:false});
   }
-  if (newItems.length > 0) shopping.push(...newItems);
-
-  const clean = text
-    .replace(/\[MEAL:[^\]]+\]/g, '')
-    .replace(/\[SHOP:[^\]]+\]/g, '')
-    .trim();
-  return clean;
+  return text.replace(/\[MEAL:[^\]]+\]/g,'').replace(/\[SHOP:[^\]]+\]/g,'').trim();
 }
 
 async function sendMessage(text) {
-  const key = localStorage.getItem('meal_agent_key_'+currentProvider) || '';
-  if (!key) { alert('请先输入 API Key'); return; }
-
+  const key = localStorage.getItem('csm_key_'+currentProvider)||'';
+  if (!key) { alert(T('noApiAlert')); return; }
   const input = document.getElementById('chat-input');
   const userText = text || input.value.trim();
   if (!userText) return;
+  input.value=''; input.style.height='auto';
+  document.getElementById('empty-state').style.display='none';
 
-  document.getElementById('empty-state').style.display = 'none';
-  input.value = '';
-  input.style.height = 'auto';
-
-  // Check for preference message (starts with *)
+  // Preference shortcut
   if (userText.startsWith('*')) {
     const prefText = userText.slice(1).trim();
-    if (prefText && !preferences.includes(prefText)) {
-      preferences.push(prefText);
-      save();
-      renderPreferences();
-    }
-    // Show confirmation in chat, don't send to API
-    document.getElementById('empty-state').style.display = 'none';
-    const uDiv = document.createElement('div');
-    uDiv.className = 'msg user';
-    uDiv.textContent = userText;
-    document.getElementById('chat-messages').appendChild(uDiv);
-    const aDiv = document.createElement('div');
-    aDiv.className = 'msg assistant';
-    aDiv.textContent = `✅ 已记住：${prefText}，这个偏好会一直保留，每周规划时都会考虑到。`;
-    document.getElementById('chat-messages').appendChild(aDiv);
-    document.getElementById('chat-messages').scrollTop = 99999;
-    document.getElementById('send-btn').disabled = false;
+    if (prefText && !preferences.includes(prefText)) { preferences.push(prefText); save(); renderPreferences(); }
+    appendMsg('user', userText);
+    appendMsg('assistant', `✅ ${T('prefSaved')}：${prefText}，${T('prefKept')}`);
     return;
   }
 
-  const userMsg = {role:'user', content: userText, displayContent: userText};
-  messages.push(userMsg);
-
-  const userDiv = document.createElement('div');
-  userDiv.className = 'msg user';
-  userDiv.textContent = userText;
-  const container = document.getElementById('chat-messages');
-  container.appendChild(userDiv);
-
+  messages.push({role:'user', content:userText, displayContent:userText});
+  appendMsg('user', userText);
   const typingDiv = document.createElement('div');
-  typingDiv.className = 'typing';
-  typingDiv.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
-  container.appendChild(typingDiv);
-  container.scrollTop = container.scrollHeight;
+  typingDiv.className='typing';
+  typingDiv.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
+  document.getElementById('chat-messages').appendChild(typingDiv);
+  document.getElementById('chat-messages').scrollTop=99999;
+  document.getElementById('send-btn').disabled=true;
 
-  document.getElementById('send-btn').disabled = true;
-
-  const invNames = inventory.map(i => typeof i === 'string' ? i : i.name);
-  const invSummary = invNames.length > 0 ? `\n\n用户家里现有食材：${invNames.join('、')}` : '';
-  const prefSummary = preferences.length > 0 ? `\n\n用户个人偏好（永久记住）：\n${preferences.map(p=>'- '+p).join('\n')}` : '';
-  const mealSummary = Object.keys(meals).length > 0
-    ? '\n\n当前已规划的餐谱：\n' + DAYS.filter(d=>meals[d]).map(d=>`${d}：午餐${meals[d].lunch||'未定'}，晚餐${meals[d].dinner||'未定'}`).join('\n')
-    : '';
+  const invNames = inventory.map(i=>typeof i==='string'?i:i.name);
+  const invSummary = invNames.length ? `\n\n用户家里现有食材：${invNames.join('、')}` : '';
+  const prefSummary = preferences.length ? `\n\n用户个人偏好（永久记住）：\n${preferences.map(p=>'- '+p).join('\n')}` : '';
+  const mealSummary = Object.keys(meals).length ? '\n\n当前餐谱：\n'+DAYS.filter(d=>meals[d]).map(d=>`${d}：午餐${meals[d].lunch||'未定'}，晚餐${meals[d].dinner||'未定'}`).join('\n') : '';
+  const sysContent = SYSTEM_PROMPT + invSummary + prefSummary + mealSummary;
 
   const apiMessages = [
-    {role:'user', content: SYSTEM_PROMPT + invSummary + prefSummary + mealSummary + '\n\n请开始对话。'},
+    {role:'user', content: sysContent + '\n\n请开始对话。'},
     {role:'assistant', content: '好的，我来帮你规划本周餐谱！'},
-    ...messages.slice(0,-1).filter(m=>m.role!=='system').map(m=>({role:m.role, content:m.content})),
-    {role:'user', content: userText}
+    ...messages.slice(0,-1).filter(m=>m.role!=='system').map(m=>({role:m.role,content:m.content})),
+    {role:'user', content:userText}
   ];
 
-  const MAX_RETRIES = 3;
-  let attempt = 0;
-  let lastError = null;
-
+  const MAX_RETRIES=3; let attempt=0, lastError=null;
   while (attempt < MAX_RETRIES) {
     attempt++;
     try {
-      if (attempt > 1) {
-        typingDiv.querySelector('.typing-dots').insertAdjacentHTML('afterend',
-          `<span style="font-size:11px;color:var(--muted);margin-left:6px">重试 ${attempt}/${MAX_RETRIES}…</span>`);
-        await new Promise(r => setTimeout(r, 1000 * attempt));
-      }
-
+      if (attempt>1) { await new Promise(r=>setTimeout(r,1000*attempt)); }
       const provider = PROVIDERS[currentProvider];
-      const data = await callAPI(currentProvider, key, provider.buildPayload(apiMessages, 1000, SYSTEM_PROMPT + invSummary + prefSummary + mealSummary));
-
+      const data = await callAPI(key, provider.buildPayload(apiMessages, 1000, sysContent));
       if (provider.isError(data)) {
-        const isRetryable = res.status === 500 || res.status === 529 || res.status === 503;
-        if (isRetryable && attempt < MAX_RETRIES) { lastError = provider.getError(data); continue; }
+        if ((attempt<MAX_RETRIES)) { lastError=provider.getError(data); continue; }
         throw new Error(provider.getError(data));
       }
-
       typingDiv.remove();
       const rawText = provider.extractText(data);
       const displayText = parseMealTags(rawText);
-
-      const aMsg = {role:'assistant', content: rawText, displayContent: displayText};
-      messages.push(aMsg);
-
-      const aDiv = document.createElement('div');
-      aDiv.className = 'msg assistant';
-      aDiv.textContent = displayText;
-      container.appendChild(aDiv);
-      container.scrollTop = container.scrollHeight;
-
-      renderMealGrid();
-      renderShopping();
-      save();
-      lastError = null;
-      break;
-
-    } catch(e) {
-      lastError = e.message;
-      if (attempt >= MAX_RETRIES) break;
-    }
+      messages.push({role:'assistant', content:rawText, displayContent:displayText});
+      appendMsg('assistant', displayText);
+      renderMealGrid(); renderShopping(); save();
+      lastError=null; break;
+    } catch(e) { lastError=e.message; if(attempt>=MAX_RETRIES) break; }
   }
-
-  if (lastError) {
-    typingDiv.remove();
-    const errDiv = document.createElement('div');
-    errDiv.className = 'msg assistant';
-    const retried = attempt > 1 ? `（已重试 ${attempt} 次）` : '';
-    errDiv.textContent = `出错了${retried}：${lastError}`;
-    container.appendChild(errDiv);
-    container.scrollTop = container.scrollHeight;
-  }
-
-  document.getElementById('send-btn').disabled = false;
+  if (lastError) { typingDiv.remove(); appendMsg('assistant', `出错了：${lastError}`); }
+  document.getElementById('send-btn').disabled=false;
 }
 
-function quickSend(text) {
-  sendMessage(text);
+function appendMsg(role, text) {
+  const container = document.getElementById('chat-messages');
+  document.getElementById('empty-state').style.display='none';
+  const div = document.createElement('div');
+  div.className='msg '+role; div.textContent=text;
+  container.appendChild(div); container.scrollTop=99999;
 }
+
+function quickSend(t) { sendMessage(t); }
 
 function askForShopping() {
-  const filled = DAYS.filter(d => meals[d] && (meals[d].lunch || meals[d].dinner));
-  if (filled.length === 0) {
-    alert('餐谱还是空的，先和助手聊聊规划吧～');
-    return;
-  }
-  sendMessage('请根据当前餐谱，扣除我家现有食材，给我生成详细的采购清单');
+  const filled = DAYS.filter(d=>meals[d]&&(meals[d].lunch||meals[d].dinner));
+  if (!filled.length) { alert('餐谱还是空的，先和助手聊聊吧～'); return; }
+  sendMessage(T('shoppingReqMsg'));
 }
 
 function handleKey(e) {
-  const dd = document.getElementById('ac-dropdown');
-  if (dd.style.display !== 'none') {
-    if (e.key === 'ArrowDown') { e.preventDefault(); navigateAC(1); return; }
-    if (e.key === 'ArrowUp') { e.preventDefault(); navigateAC(-1); return; }
-    if (e.key === 'Enter' && acIndex >= 0) {
-      e.preventDefault();
-      const item = dd.querySelectorAll('.ac-item')[acIndex];
-      if (item) pickAC(item.dataset.val);
-      return;
-    }
-    if (e.key === 'Escape') { hideAC(); return; }
+  const dd=document.getElementById('ac-dropdown');
+  if (dd.style.display!=='none') {
+    if (e.key==='ArrowDown'){e.preventDefault();navigateAC(1);return;}
+    if (e.key==='ArrowUp'){e.preventDefault();navigateAC(-1);return;}
+    if (e.key==='Enter'&&acIndex>=0){e.preventDefault();const item=dd.querySelectorAll('.ac-item')[acIndex];if(item)pickAC(item.dataset.val);return;}
+    if (e.key==='Escape'){hideAC();return;}
   }
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
 }
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
 
-function checkFreshness() {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const warnings = [];
-  inventory.forEach(item => {
-    const name = typeof item === 'string' ? item : item.name;
-    const date = typeof item === 'object' ? item.date : null;
-    if (!date) return;
-    const bought = new Date(date); bought.setHours(0,0,0,0);
-    const daysKept = Math.floor((today - bought) / 86400000);
-    const shelfDays = getShelfDays(name);
-    if (!shelfDays) return;
-    const daysLeft = shelfDays - daysKept;
-    if (daysLeft <= 0) warnings.push(`🔴 ${name}：可能已变质（已存放 ${daysKept} 天）`);
-    else if (daysLeft <= 3) warnings.push(`🟡 ${name}：还剩约 ${daysLeft} 天，请尽快食用`);
-  });
-  const banner = document.getElementById('freshness-banner');
-  if (warnings.length > 0) {
-    banner.style.display = 'block';
-    banner.innerHTML = `<strong>⚠️ 食材保鲜提醒</strong>${warnings.join('<br>')}`;
-  } else {
-    banner.style.display = 'none';
-  }
-}
-
-function resetWeek() {
-  if (!confirm('开始新的一周？餐谱、对话和采购清单将被清空，食材信息保留')) return;
-  meals = {}; messages = []; shopping = []; // preferences intentionally kept
-  save();
-  renderMealGrid();
-  renderMessages();
-  renderShopping();
-  document.getElementById('empty-state').style.display = 'flex';
-  checkFreshness();
-}
-
-function exportSVG() {
-  const W = 640, PD = 24, ROW = 48, HDR = 40, TOP = 70;
-  const H = TOP + HDR + 7 * ROW + PD;
-  const cols = [60, 200, 200];
-  let rows = DAYS.map((day, i) => {
-    const y = TOP + HDR + i * ROW;
-    const fill = i%2===0 ? '#fff' : '#F7F4EE';
-    const lunch = meals[day]?.lunch || '';
-    const dinner = meals[day]?.dinner || '';
-    return `<rect x="${PD}" y="${y}" width="${W-PD*2}" height="${ROW}" fill="${fill}"/>
-<line x1="${PD}" y1="${y}" x2="${W-PD}" y2="${y}" stroke="#DDD8CE" stroke-width="0.5"/>
-<text x="${PD+8}" y="${y+ROW/2+5}" font-size="13" font-weight="500" fill="#B85C2A" font-family="system-ui,sans-serif">${day}</text>
-<rect x="${PD+cols[0]+4}" y="${y+8}" width="${cols[1]-10}" height="${ROW-16}" rx="4" fill="#F5E8DF"/>
-<text x="${PD+cols[0]+12}" y="${y+ROW/2+5}" font-size="12" fill="#712B13" font-family="system-ui,sans-serif">${lunch||'—'}</text>
-<rect x="${PD+cols[0]+cols[1]+4}" y="${y+8}" width="${cols[2]-10}" height="${ROW-16}" rx="4" fill="#E1F5EE"/>
-<text x="${PD+cols[0]+cols[1]+12}" y="${y+ROW/2+5}" font-size="12" fill="#085041" font-family="system-ui,sans-serif">${dinner||'—'}</text>`;
-  }).join('');
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-<rect width="${W}" height="${H}" fill="#F7F4EE"/>
-<rect x="${PD}" y="${PD}" width="${W-PD*2}" height="36" rx="6" fill="#F5E8DF"/>
-<text x="${W/2}" y="${PD+24}" text-anchor="middle" font-size="15" font-weight="600" fill="#B85C2A" font-family="system-ui,sans-serif">一周餐谱</text>
-<rect x="${PD}" y="${TOP}" width="${W-PD*2}" height="${HDR}" fill="#F0EDE6"/>
-<text x="${PD+8}" y="${TOP+HDR/2+5}" font-size="11" fill="#7A7468" font-family="system-ui,sans-serif">日期</text>
-<text x="${PD+cols[0]+12}" y="${TOP+HDR/2+5}" font-size="11" fill="#B85C2A" font-weight="500" font-family="system-ui,sans-serif">午餐</text>
-<text x="${PD+cols[0]+cols[1]+12}" y="${TOP+HDR/2+5}" font-size="11" fill="#085041" font-weight="500" font-family="system-ui,sans-serif">晚餐</text>
-${rows}
-<rect x="${PD}" y="${TOP}" width="${W-PD*2}" height="${HDR+7*ROW}" fill="none" stroke="#DDD8CE" stroke-width="0.5" rx="4"/>
-</svg>`;
-
-  const blob = new Blob([svg], {type:'image/svg+xml'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='餐谱.svg'; a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ── Autocomplete ──────────────────────────────────────────
-let dishHistory = [];
-let acIndex = -1;
-
-function loadDishHistory() {
-  dishHistory = JSON.parse(localStorage.getItem('dish_history') || '[]');
-}
+// ── Autocomplete ──
+let dishHistory=[], acIndex=-1;
 
 function saveDishToHistory(name) {
-  if (!name || name.length < 2) return;
+  if (!name||name.length<2) return;
   if (!dishHistory.includes(name)) {
     dishHistory.unshift(name);
-    if (dishHistory.length > 200) dishHistory = dishHistory.slice(0, 200);
-    localStorage.setItem('dish_history', JSON.stringify(dishHistory));
+    if (dishHistory.length>200) dishHistory=dishHistory.slice(0,200);
+    localStorage.setItem('csm_dish_history', JSON.stringify(dishHistory));
   }
-}
-
-function extractDishesFromMeals() {
-  const dishes = new Set(dishHistory);
-  Object.values(meals).forEach(m => {
-    if (m.lunch) m.lunch.split(/[，,、]/).forEach(d => { const t=d.trim(); if(t) dishes.add(t); });
-    if (m.dinner) m.dinner.split(/[，,、]/).forEach(d => { const t=d.trim(); if(t) dishes.add(t); });
-  });
-  return [...dishes];
 }
 
 function getLastWord(text) {
-  const parts = text.split(/[\n，,、 ]+/);
-  return parts[parts.length - 1].trim();
-  return parts[parts.length - 1].trim();
+  const parts = text.split(/[\n，,、\s]+/);
+  return parts[parts.length-1].trim();
 }
 
 function onChatInput(el) {
-  const val = el.value;
-  const word = getLastWord(val);
-  if (word.length < 1) { hideAC(); return; }
-  const all = extractDishesFromMeals();
-  const matched = all.filter(d => d.includes(word) && d !== word).slice(0, 8);
-  if (matched.length === 0) { hideAC(); return; }
-  showAC(matched, word, el);
+  const word=getLastWord(el.value);
+  if (word.length<1){hideAC();return;}
+  const all=[...new Set([...dishHistory, ...Object.values(meals).flatMap(m=>[m.lunch,m.dinner]).filter(Boolean)])];
+  const matched=all.filter(d=>d.includes(word)&&d!==word).slice(0,8);
+  if (!matched.length){hideAC();return;}
+  const dd=document.getElementById('ac-dropdown');
+  acIndex=-1;
+  dd.innerHTML='<div class="ac-section">历史菜品</div>'+matched.map(item=>
+    `<div class="ac-item" data-val="${item}">${item.replace(word,`<b style="color:var(--accent)">${word}</b>`)}</div>`
+  ).join('');
+  dd.style.display='block';
 }
 
-function showAC(items, query, input) {
-  const dd = document.getElementById('ac-dropdown');
-  acIndex = -1;
-  dd.innerHTML = '<div class="ac-section">历史菜品</div>' +
-    items.map((item, i) =>
-      `<div class="ac-item" data-val="${item}" onmousedown="pickAC('${item.replace(/'/g,"\'")}', event)">
-        <span>${item.replace(query, '<b style=color:var(--accent)>'+query+'</b>')}</span>
-      </div>`
-    ).join('');
-  dd.style.display = 'block';
+function hideAC(){document.getElementById('ac-dropdown').style.display='none';acIndex=-1;}
+
+function pickAC(val,e){
+  if(e)e.preventDefault();
+  const input=document.getElementById('chat-input');
+  const word=getLastWord(input.value);
+  const idx=input.value.lastIndexOf(word);
+  input.value=input.value.slice(0,idx)+val;
+  hideAC(); input.focus(); autoResize(input);
 }
 
-function hideAC() {
-  document.getElementById('ac-dropdown').style.display = 'none';
-  acIndex = -1;
-}
-
-function pickAC(val, e) {
-  if (e) e.preventDefault();
-  const input = document.getElementById('chat-input');
-  const text = input.value;
-  const word = getLastWord(text);
-  const idx = text.lastIndexOf(word);
-  input.value = text.slice(0, idx) + val;
-  hideAC();
-  input.focus();
-  autoResize(input);
-}
-
-function navigateAC(dir) {
-  const dd = document.getElementById('ac-dropdown');
-  if (dd.style.display === 'none') return false;
-  const items = dd.querySelectorAll('.ac-item');
-  if (!items.length) return false;
+function navigateAC(dir){
+  const dd=document.getElementById('ac-dropdown');
+  if(dd.style.display==='none')return;
+  const items=dd.querySelectorAll('.ac-item');
+  if(!items.length)return;
   items[acIndex]?.classList.remove('active');
-  acIndex = (acIndex + dir + items.length) % items.length;
+  acIndex=(acIndex+dir+items.length)%items.length;
   items[acIndex].classList.add('active');
-  return true;
 }
 
-// Hook into parseMealTags to record dishes
-const _origParse = parseMealTags;
-parseMealTags = function(text) {
-  const mealRe = /\[MEAL:[^:]+:[^:]+:([^\]]+)\]/g;
-  let m;
-  while ((m = mealRe.exec(text)) !== null) saveDishToHistory(m[1].trim());
-  return _origParse(text);
-};
+// ── Reset week ──
+function resetWeek() {
+  if (!confirm('开始新的一周？餐谱、对话和采购清单将被清空，食材和食谱保留')) return;
+  meals={}; messages=[]; shopping=[];
+  save(); renderAll(); checkFreshness();
+  document.getElementById('empty-state').style.display='flex';
+}
 
-// Also save when user manually types dish names in chat
-function extractAndSaveDishesFromUserText(text) {
-  // Save short phrases that look like dish names (2-10 chars, no punctuation-only)
-  text.split(/[，,、\n]/).forEach(p => {
-    const t = p.trim();
-    if (t.length >= 2 && t.length <= 15) saveDishToHistory(t);
+// ════════════════════════════════════
+// RECIPE BOX
+// ════════════════════════════════════
+
+function renderRecipeBox() {
+  renderTabs();
+  renderCards();
+}
+
+function renderTabs() {
+  const cats = ['全部', ...new Set(recipes.map(r=>r.cat||'其他'))];
+  const tabsEl = document.getElementById('box-tabs');
+  tabsEl.innerHTML = cats.map(c =>
+    `<div class="box-tab ${c===currentTab?'active':''}" data-cat="${c}" onclick="selectTab(this)">${c}</div>`
+  ).join('') + '<div class="box-tab-add" onclick="addTab()" title="新建分类">+</div>';
+}
+
+function renderCards() {
+  const area = document.getElementById('cards-area');
+  const filtered = currentTab==='全部' ? recipes : recipes.filter(r=>(r.cat||'其他')===currentTab);
+  if (!filtered.length) {
+    area.innerHTML=`<div class="box-empty" id="box-empty"><div class="box-empty-text">${T('noRecipes')}</div></div>`;
+    return;
+  }
+  area.innerHTML = filtered.map((r,i) => {
+    const idx = recipes.indexOf(r);
+    return `<div class="recipe-card" id="rc-${idx}" onclick="toggleCard(${idx})">
+      <div class="rc-header">
+        <div>
+          <div class="rc-name">${r.name}</div>
+          <div class="rc-meta">${r.serves||''}${r.serves&&r.cat?' · ':''}${r.cat||''}</div>
+        </div>
+        <div class="rc-actions" onclick="event.stopPropagation()">
+          <button class="rc-btn" onclick="openModal(${idx})" title="编辑">✏️</button>
+          <button class="rc-btn" onclick="deleteRecipe(${idx})" title="删除">🗑</button>
+        </div>
+      </div>
+      <div class="rc-body">
+        ${r.ingredients?.length?`<div class="rc-section-title">食材</div><div class="rc-pills">${r.ingredients.map(x=>`<span class="rc-pill">${x}</span>`).join('')}</div>`:''}
+        ${r.seasonings?.length?`<div class="rc-section-title">调料</div><div class="rc-pills">${r.seasonings.map(x=>`<span class="rc-pill seasoning">${x}</span>`).join('')}</div>`:''}
+        ${r.note?`<div class="rc-note">${r.note}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(idx) {
+  const card = document.getElementById('rc-'+idx);
+  if (!card) return;
+  const isExp = card.classList.contains('expanded');
+  document.querySelectorAll('.recipe-card.expanded').forEach(c=>c.classList.remove('expanded'));
+  if (!isExp) card.classList.add('expanded');
+}
+
+function selectTab(el) {
+  currentTab = el.dataset.cat;
+  document.querySelectorAll('.box-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCards();
+}
+
+function addTab() {
+  const name = prompt('新分类名称：');
+  if (!name?.trim()) return;
+  openModal(null, '', name.trim());
+}
+
+function deleteRecipe(idx) {
+  if (!confirm(`删除「${recipes[idx].name}」？`)) return;
+  recipes.splice(idx,1); save(); renderRecipeBox();
+}
+
+// ── Modal ──
+function openModal(idx=null, prefillName='', prefillCat='') {
+  editingRecipeId = idx;
+  const r = idx !== null ? recipes[idx] : null;
+  document.getElementById('modal-title').textContent = r ? '编辑食谱' : '添加食谱';
+  document.getElementById('r-name').value = r?.name || prefillName;
+  document.getElementById('r-cat').value = r?.cat || prefillCat;
+  document.getElementById('r-serves').value = r?.serves || '';
+  document.getElementById('r-note').value = r?.note || '';
+  modalIngredients = [...(r?.ingredients||[])];
+  modalSeasonings = [...(r?.seasonings||[])];
+  renderModalPills();
+  document.getElementById('recipe-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('r-name').focus(),100);
+}
+
+function closeModal() {
+  document.getElementById('recipe-modal').classList.remove('open');
+  editingRecipeId=null; modalIngredients=[]; modalSeasonings=[];
+}
+
+function renderModalPills() {
+  document.getElementById('r-ingredients-pills').innerHTML = modalIngredients.map((x,i)=>
+    `<div class="modal-pill">${x}<span class="rp" onclick="removePillItem('ing',${i})">×</span></div>`).join('');
+  document.getElementById('r-seasonings-pills').innerHTML = modalSeasonings.map((x,i)=>
+    `<div class="modal-pill">${x}<span class="rp" onclick="removePillItem('sea',${i})">×</span></div>`).join('');
+}
+
+function addPill(type) {
+  const inputId = type==='ing' ? 'r-ing-input' : 'r-sea-input';
+  const v = document.getElementById(inputId).value.trim();
+  if (!v) return;
+  if (type==='ing') modalIngredients.push(v); else modalSeasonings.push(v);
+  document.getElementById(inputId).value='';
+  renderModalPills();
+}
+
+function removePillItem(type, i) {
+  if (type==='ing') modalIngredients.splice(i,1); else modalSeasonings.splice(i,1);
+  renderModalPills();
+}
+
+function saveRecipe() {
+  const name = document.getElementById('r-name').value.trim();
+  if (!name) { alert('请填写菜名'); return; }
+  const recipe = {
+    name,
+    cat: document.getElementById('r-cat').value.trim() || '其他',
+    serves: document.getElementById('r-serves').value.trim(),
+    ingredients: [...modalIngredients],
+    seasonings: [...modalSeasonings],
+    note: document.getElementById('r-note').value.trim(),
+    addedAt: new Date().toISOString()
+  };
+  if (editingRecipeId !== null) recipes[editingRecipeId] = recipe;
+  else recipes.push(recipe);
+  saveDishToHistory(name);
+  save(); closeModal(); renderRecipeBox();
+}
+
+// ── Import from URL ──
+async function importFromUrl() {
+  const url = document.getElementById('import-url').value.trim();
+  if (!url) return;
+  const key = localStorage.getItem('csm_key_'+currentProvider)||'';
+  if (!key) { alert(T('noApiAlert')); return; }
+
+  const area = document.getElementById('cards-area');
+  const origHTML = area.innerHTML;
+  area.innerHTML = `<div class="import-loading"><span class="import-spinner"></span>正在读取食谱链接…</div>`;
+
+  const prompt = `Please analyze this recipe URL and extract the recipe information: ${url}
+
+Return ONLY a JSON object (no markdown, no extra text) in this exact format:
+{
+  "name": "菜名（中文）",
+  "cat": "分类（如：中餐/西餐/汤/甜点）",
+  "serves": "适合人数（如：2人份）",
+  "ingredients": ["食材1", "食材2"],
+  "seasonings": ["调料1", "调料2"],
+  "note": "简短备注或原链接"
+}
+
+If you cannot access the URL, try to infer from the URL text itself. Always return valid JSON.`;
+
+  try {
+    const payload = currentProvider==='anthropic'
+      ? {model:'claude-sonnet-4-20250514', max_tokens:600, messages:[{role:'user',content:prompt}]}
+      : {model:'deepseek-chat', max_tokens:600, messages:[{role:'system',content:'You extract recipe data and return only JSON.'},{role:'user',content:prompt}]};
+    const data = await callAPI(key, payload);
+    const text = PROVIDERS[currentProvider].extractText(data);
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    if (!parsed.name) throw new Error('无法解析食谱');
+    parsed.addedAt = new Date().toISOString();
+    recipes.push(parsed);
+    saveDishToHistory(parsed.name);
+    save();
+    document.getElementById('import-url').value='';
+    renderRecipeBox();
+  } catch(e) {
+    area.innerHTML = origHTML;
+    alert('导入失败：' + e.message + '\n\n可以尝试手动添加食谱。');
+  }
+}
+
+// ── Exports ──
+let exportType = 'meal'; // 'meal' or 'shop'
+
+function exportMealSVG() {
+  exportType = 'meal';
+  document.getElementById('export-modal-title').textContent = lang==='en' ? 'Export Meal Plan' : '导出餐谱';
+  document.getElementById('export-modal-desc').textContent = lang==='en' ? 'Choose language — content will be copied to clipboard' : '选择语言，内容将复制到剪贴板';
+  document.getElementById('export-en-hint').textContent = lang==='en' ? 'AI translates then copies' : 'AI 翻译后复制';
+  document.getElementById('export-modal').classList.add('open');
+}
+
+function exportShopSVG() {
+  if (!shopping.filter(s=>!s.done).length) { alert(T('noShoppingAlert')); return; }
+  exportType = 'shop';
+  document.getElementById('export-modal-title').textContent = lang==='en' ? 'Export Shopping List' : '导出采购清单';
+  document.getElementById('export-modal-desc').textContent = lang==='en' ? 'Choose language — content will be copied to clipboard' : '选择语言，内容将复制到剪贴板';
+  document.getElementById('export-en-hint').textContent = lang==='en' ? 'AI translates then copies' : 'AI 翻译后复制';
+  document.getElementById('export-modal').classList.add('open');
+}
+
+function buildMealText(mealData, dayNames, lunchLabel, dinnerLabel, title) {
+  const dates = getWeekDates();
+  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+  const dateRange = `${fmt(dates[0])} — ${fmt(dates[6])}`;
+  let text = `🍜 ${title} ${dateRange}
+${'─'.repeat(28)}
+`;
+  DAYS_KEY.forEach((key, i) => {
+    const lunch = mealData[key]?.lunch || '—';
+    const dinner = mealData[key]?.dinner || '—';
+    text += `${dayNames[i].padEnd(4)} ${lunchLabel}：${lunch.padEnd(12)} ${dinnerLabel}：${dinner}
+`;
   });
+  return text;
 }
-// ─────────────────────────────────────────────────────────
 
-
-function exportShoppingSVG() {
-  if (shopping.length === 0) { alert('采购清单是空的，先生成清单吧'); return; }
-  const W = 480, PD = 24, ROW = 36, HDR = 40, TOP = 70, CAT_H = 28;
+function buildShopText(shopData, title, itemsLabel) {
+  const active = shopData.filter(s=>!s.done);
   const bycat = {};
-  shopping.filter(s=>!s.done).forEach(s => {
-    if (!bycat[s.cat]) bycat[s.cat] = [];
-    bycat[s.cat].push(s.name);
+  active.forEach(s => { if(!bycat[s.cat]) bycat[s.cat]=[]; bycat[s.cat].push(s.name); });
+  let text = `🛒 ${title}
+${'─'.repeat(28)}
+`;
+  Object.entries(bycat).forEach(([cat, items]) => {
+    text += `【${cat}】${items.join(' / ')}
+`;
   });
-  const cats = Object.keys(bycat);
-  let totalRows = cats.reduce((n, c) => n + bycat[c].length, 0);
-  let totalCats = cats.length;
-  const H = TOP + HDR + totalCats * CAT_H + totalRows * ROW + PD;
-
-  let body = '';
-  let y = TOP + HDR;
-  cats.forEach((cat, ci) => {
-    body += `<rect x="${PD}" y="${y}" width="${W-PD*2}" height="${CAT_H}" fill="#F0EDE6"/>
-<text x="${PD+10}" y="${y+CAT_H/2+4}" font-size="10" font-weight="500" fill="#7A7468" font-family="system-ui,sans-serif" letter-spacing="1">${cat.toUpperCase()}</text>`;
-    y += CAT_H;
-    bycat[cat].forEach((item, ii) => {
-      const fill = ii%2===0 ? '#fff' : '#F7F4EE';
-      body += `<rect x="${PD}" y="${y}" width="${W-PD*2}" height="${ROW}" fill="${fill}"/>
-<line x1="${PD}" y1="${y}" x2="${W-PD}" y2="${y}" stroke="#DDD8CE" stroke-width="0.5"/>
-<rect x="${PD+10}" y="${y+ROW/2-5}" width="10" height="10" rx="2" fill="none" stroke="#DDD8CE" stroke-width="1"/>
-<text x="${PD+28}" y="${y+ROW/2+5}" font-size="13" fill="#1C1A16" font-family="system-ui,sans-serif">${item}</text>`;
-      y += ROW;
-    });
-  });
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-<rect width="${W}" height="${H}" fill="#F7F4EE"/>
-<rect x="${PD}" y="${PD}" width="${W-PD*2}" height="36" rx="6" fill="#F5E8DF"/>
-<text x="${W/2}" y="${PD+24}" text-anchor="middle" font-size="15" font-weight="600" fill="#B85C2A" font-family="system-ui,sans-serif">采购清单</text>
-<rect x="${PD}" y="${TOP}" width="${W-PD*2}" height="${HDR}" fill="#F0EDE6"/>
-<text x="${PD+10}" y="${TOP+HDR/2+5}" font-size="11" fill="#7A7468" font-family="system-ui,sans-serif">待购食材</text>
-<text x="${W-PD-10}" y="${TOP+HDR/2+5}" text-anchor="end" font-size="11" fill="#7A7468" font-family="system-ui,sans-serif">${shopping.filter(s=>!s.done).length} 项</text>
-${body}
-<rect x="${PD}" y="${TOP}" width="${W-PD*2}" height="${HDR + totalCats*CAT_H + totalRows*ROW}" fill="none" stroke="#DDD8CE" stroke-width="0.5" rx="4"/>
-</svg>`;
-
-  const blob = new Blob([svg], {type:'image/svg+xml'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='采购清单.svg'; a.click();
-  URL.revokeObjectURL(url);
+  text += `
+${itemsLabel}: ${active.length}`;
+  return text;
 }
 
-loadDishHistory();
+async function doExport(exportLang) {
+  const modal = document.getElementById('export-modal');
+  const loading = document.getElementById('export-loading');
+
+  if (exportLang === 'zh') {
+    // Direct copy in Chinese
+    let text = '';
+    if (exportType === 'meal') {
+      text = buildMealText(meals, DAYS_ZH, '午餐', '晚餐', '本周餐谱 · Chi-shen-me');
+    } else {
+      text = buildShopText(shopping, '采购清单 · Chi-shen-me', '共');
+    }
+    await copyToClipboard(text);
+    modal.classList.remove('open');
+    showToast(lang==='en' ? 'Copied to clipboard!' : '已复制到剪贴板');
+    return;
+  }
+
+  // English — translate via AI
+  const key = localStorage.getItem('csm_key_'+currentProvider)||'';
+  if (!key) { alert(T('noApiAlert')); return; }
+
+  loading.style.display = 'block';
+  document.querySelectorAll('#export-modal .btn:not(.modal-actions .btn)').forEach(b=>b.disabled=true);
+
+  try {
+    let sourceText = '';
+    if (exportType === 'meal') {
+      sourceText = buildMealText(meals, DAYS_ZH, '午餐', '晚餐', '本周餐谱');
+    } else {
+      sourceText = buildShopText(shopping, '采购清单', '共');
+    }
+
+    const prompt = exportType === 'meal'
+      ? `Translate this weekly meal plan from Chinese to English. Keep the format exactly, just translate the dish names and labels. Keep day abbreviations as Mon/Tue/Wed/Thu/Fri/Sat/Sun, Lunch/Dinner labels. Return ONLY the translated text, no explanation:
+
+${sourceText}`
+      : `Translate this shopping list from Chinese to English. Keep the format with 【category】items. Translate category names and food items to natural English. Return ONLY the translated text:
+
+${sourceText}`;
+
+    const payload = currentProvider==='anthropic'
+      ? {model:'claude-sonnet-4-20250514', max_tokens:600, messages:[{role:'user',content:prompt}]}
+      : {model:'deepseek-chat', max_tokens:600, messages:[{role:'system',content:'You translate text. Return only the translated text.'},{role:'user',content:prompt}]};
+
+    const data = await callAPI(key, payload);
+    const translated = PROVIDERS[currentProvider].extractText(data).trim();
+    const stripFirstLine = s => s.includes('\n') ? s.slice(s.indexOf('\n')+1) : s;
+    const final = exportType === 'meal'
+      ? `🍜 Weekly Meal Plan · Chi-shen-me\n${'─'.repeat(28)}\n` + stripFirstLine(translated)
+      : `🛒 Shopping List · Chi-shen-me\n${'─'.repeat(28)}\n` + stripFirstLine(translated);
+
+    await copyToClipboard(final);
+    modal.classList.remove('open');
+    showToast('Copied to clipboard!');
+  } catch(e) {
+    alert('Translation failed: ' + e.message);
+  } finally {
+    loading.style.display = 'none';
+    document.querySelectorAll('#export-modal .btn:not(.modal-actions .btn)').forEach(b=>b.disabled=false);
+  }
+}
+
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('copy-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'copy-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;z-index:9999;transition:opacity 0.3s;pointer-events:none';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(() => toast.style.opacity = '0', 2200);
+}
+
 init();
 </script>
 </body>
