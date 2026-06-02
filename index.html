@@ -530,11 +530,7 @@
         <button class="btn small" onclick="toggleKey()">显示</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:6px">存在本地，不会上传</div>
-      <div id="cors-notice" style="display:none;margin-top:8px;font-size:11px;background:var(--accent-light);color:var(--accent);border-radius:6px;padding:7px 10px;line-height:1.6">
-        DeepSeek 需要从服务器打开才能使用。<br>在文件所在目录运行：<br>
-        <code style="font-size:11px;background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">python3 -m http.server 8080</code><br>
-        然后访问 <a href="http://localhost:8080" style="color:var(--accent)">localhost:8080</a>
-      </div>
+
     </div>
 
     <!-- Inventory -->
@@ -657,7 +653,6 @@ function init() {
   currentProvider = savedProvider;
   document.getElementById('btn-anthropic').classList.toggle('active', savedProvider==='anthropic');
   document.getElementById('btn-deepseek').classList.toggle('active', savedProvider==='deepseek');
-  document.getElementById('cors-notice').style.display = savedProvider==='deepseek' ? 'block' : 'none';
   document.getElementById('api-key').placeholder = PROVIDERS[savedProvider].placeholder;
   const key = localStorage.getItem('meal_agent_key_'+savedProvider) || '';
   document.getElementById('api-key').value = key;
@@ -750,12 +745,6 @@ function setProvider(p) {
   document.getElementById('api-key').placeholder = PROVIDERS[p].placeholder;
   document.getElementById('api-key').value = localStorage.getItem('meal_agent_key_'+p) || '';
   updateStatus(!!document.getElementById('api-key').value.trim());
-  const notice = document.getElementById('cors-notice');
-  if (p === 'deepseek') {
-    notice.style.display = 'block';
-  } else {
-    notice.style.display = 'none';
-  }
 }
 
 function saveKey() {
