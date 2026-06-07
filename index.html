@@ -1046,12 +1046,13 @@ const SYSTEM_PROMPT = `你是一个贴心的中文餐谱规划助手。用户在
 // ── State ──
 let messages = [], meals = {}, inventory = [], shopping = [], preferences = [];
 let recipes = [], currentTab = '全部', customCats = [];
+let weekOffset = 0; // 0 = current week, +1 = next week, etc.
 let editingRecipeId = null;
 let modalIngredients = [], modalSeasonings = [];
 
 // ── Persistence ──
 function save() {
-  localStorage.setItem('csm', JSON.stringify({meals, inventory, messages, shopping}));
+  localStorage.setItem('csm', JSON.stringify({meals, inventory, messages, shopping, weekOffset}));
   localStorage.setItem('csm_prefs', JSON.stringify(preferences));
   localStorage.setItem('csm_recipes', JSON.stringify(recipes));
   localStorage.setItem('csm_customcats', JSON.stringify(customCats));
@@ -1216,6 +1217,7 @@ function toggleLang() {
 
 function init() {
   const d = JSON.parse(localStorage.getItem('csm') || '{}');
+  weekOffset = d.weekOffset || 0;
   meals = d.meals || {}; inventory = d.inventory || []; messages = d.messages || []; shopping = d.shopping || [];
   preferences = JSON.parse(localStorage.getItem('csm_prefs') || '[]');
   recipes = JSON.parse(localStorage.getItem('csm_recipes') || '[]');
@@ -1309,7 +1311,7 @@ function toggleKey() {
 function getWeekDates() {
   const today = new Date(), dow = today.getDay();
   const offset = dow === 0 ? -6 : 1 - dow;
-  const monday = new Date(today); monday.setDate(today.getDate() + offset);
+  const monday = new Date(today); monday.setDate(today.getDate() + offset + weekOffset*7);
   return Array.from({length:7}, (_,i) => { const d=new Date(monday); d.setDate(monday.getDate()+i); return d; });
 }
 
@@ -1695,8 +1697,9 @@ function navigateAC(dir){
 
 // ── Reset week ──
 function resetWeek() {
-  if (!confirm('开始新的一周？餐谱、对话和采购清单将被清空，食材和食谱保留')) return;
+  if (!confirm(lang==='en'?'Start a new week? Meals, chat and shopping list will be cleared. Pantry and recipes are kept.':'开始新的一周？餐谱、对话和采购清单将被清空，食材和食谱保留')) return;
   meals={}; messages=[]; shopping=[];
+  weekOffset += 1;
   save(); renderAll(); checkFreshness();
   document.getElementById('empty-state').style.display='flex';
 }
